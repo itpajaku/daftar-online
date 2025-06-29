@@ -1,4 +1,3 @@
-
 # Daftar Online
 
 Aplikasi bantu pihak untuk mendaftar secara online melalui E-Court Mahkamah Agung RI.
@@ -8,7 +7,7 @@ Aplikasi bantu pihak untuk mendaftar secara online melalui E-Court Mahkamah Agun
 ## Cara install
 1. Clone repo
 2. run `composer install`
-3. run `npm run install`
+3. run `npm run install`
 4. run `cp .env.example .env` lalu sesuaikan file .env
 5. run `php artisan key generate`
 ---
