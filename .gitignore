@@ -24,3 +24,4 @@ yarn-error.log
 *.crt
 *.cert
 *.pem
+logs/*.log
