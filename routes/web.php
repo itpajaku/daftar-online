@@ -9,6 +9,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+
 Route::get('dashboard', \App\Livewire\Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
