@@ -22,4 +22,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
+Route::get("step-1", \App\Livewire\WelcomeStepWizard::class)
+    ->name("step-1");
+
 require __DIR__ . '/auth.php';
