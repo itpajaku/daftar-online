@@ -49,8 +49,7 @@
           <a href="{{ url('step-1') }}" class="btn btn-lg  btn-danger px-4">
             <i class="ti ti-flag me-2"></i>Mulai
           </a>
-          <a href="https://github.com/flightsadmin/bootstrap-starter-kit" class="btn btn-lg btn-outline-dark px-4"
-            target="_blank">
+          <a href="{{ route('search') }}" class="btn btn-lg btn-outline-dark px-4">
             <i class="ti ti-key me-2"></i>Cek Pendaftaran
           </a>
         </div>

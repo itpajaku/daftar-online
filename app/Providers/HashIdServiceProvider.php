@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use App\Library\HashId;
+use App\Service\HashId;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
 use Vinkla\Hashids\HashidsManager;
+use App\Service\HashRouteId;
 
 class HashIdServiceProvider extends ServiceProvider
 {

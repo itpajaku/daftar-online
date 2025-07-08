@@ -208,6 +208,13 @@ use Spatie\Html\Elements\Textarea;
 
   </section>
   <hr>
+  @if(session('error'))
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Gagal!</strong> {{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  @endif
+
   <div class="row row-cols-md-2">
     <div class="col">
       <a href="{{ route('home') }}" class="btn btn-danger btn-block">

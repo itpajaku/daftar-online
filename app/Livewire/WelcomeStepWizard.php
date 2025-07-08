@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Library\HashId;
+use App\Service\HashId;
 use App\Models\Identity;
 use Illuminate\Support\Facades\Crypt;
 use Livewire\Attributes\Layout;
@@ -70,15 +70,19 @@ class WelcomeStepWizard extends Component
     public function save(HashId $hashId)
     {
         $this->validate();
-        $identity = Identity::create([
-            ...$this->except(['nomor_kependudukan', 'nomor_telepon']),
-            'nomor_kependudukan' => Crypt::encryptString($this->nomor_kependudukan),
-            'nomor_telepon' => Crypt::encryptString($this->nomor_telepon),
-        ]);
+        try {
+            $identity = Identity::create([
+                ...$this->except(['nomor_kependudukan', 'nomor_telepon']),
+                'nomor_kependudukan' => Crypt::encryptString($this->nomor_kependudukan),
+                'nomor_telepon' => $hashId->encode($this->nomor_telepon),
+            ]);
 
-        session()->flash('message', 'Data berhasil disimpan!');
-        $id = $hashId->encode($identity->id);
+            session()->flash('message', 'Data berhasil disimpan!');
+            $id = $hashId->encode($identity->id);
 
-        return $this->redirect("step-2/{$id}");
+            return $this->redirect("step-2/{$id}");
+        } catch (\Throwable $th) {
+            session()->flash('error', 'Terjadi kesalahan.' . $th->getMessage());
+        }
     }
 }

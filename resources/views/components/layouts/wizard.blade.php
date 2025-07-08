@@ -5,7 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ config('app.name', 'Laravel') }}</title>
-  @vite(['resources/css/modern.style.css', 'resources/js/app.js'])
+  @vite(['resources/css/modern.style.css', 'resources/css/timeline.css', 'resources/js/app.js'])
+  @stack('styles')
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
@@ -27,9 +28,9 @@
                 <img src="/logo.png" alt="">
               </a>
               <div class="card-body wizard-content">
-                <h4 class="card-title mb-3">Selamat Datang</h4>
-                <h6 class="card-subtitle mb-3">Untuk memenuhi persyaratan pendaftaran online, Silahkan lengkapi data
-                  dibawah ini
+                <h4 class="card-title mb-3">E- Register {{ ucwords(strtolower($sys_conf['NamaPN'])) }}</h4>
+                <h6 class="card-subtitle mb-3">Memudahkan pendaftaran perkara secara online. Silahkan ikuti panduan
+                  dibawah.
                 </h6>
                 <hr>
                 {{ $slot }}
@@ -40,6 +41,7 @@
       </div>
     </div>
   </div>
+  @stack('scripts')
 </body>
 
 </html>

@@ -8,10 +8,9 @@ export default defineConfig({
             input: [
                 'resources/css/app.scss',
                 'resources/css/modern.style.css',
-                'resources/css/wizard.css',
+                'resources/css/timeline.css',
                 'resources/js/app.js',
                 '@jquery/dist/jquery.min.js',
-                'resources/js/form-wizard.js',
             ],
             refresh: true,
         }),
