@@ -2,9 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\Identity;
+use App\Models\SensitiveIdentityKey;
 use App\Service\HashId;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -23,16 +22,19 @@ class SearchIdentityWizard extends Component
     #[Validate('required', message: 'Nomor telepon tidak boleh kosong.')]
     public $nomor_telepon;
 
-    public function search(HashId $hashId)
+    public function search(HashId $hash)
     {
         $this->validate();
-        $nomor_telepon = $hashId->encode($this->nomor_telepon);
-        $identity = Identity::where('nomor_telepon', $nomor_telepon)->first();
-        if (!$identity) {
+        $hashedNomorTelepon = hash_hmac('sha256', $this->nomor_telepon, config('app.key'));
+        $sensitiveIdentityKey = SensitiveIdentityKey::where('hash_nomor_telepon', $hashedNomorTelepon)->first();
+        if (!$sensitiveIdentityKey) {
             session()->flash('error', 'Akun dengan nomor telepon tersebut tidak ditemukan.');
             return;
         }
-        return redirect('timeline/' . $hashId->encode($identity->id));
+        if (!$sensitiveIdentityKey->identity->bank_account) {
+            return redirect('step-2/' . $hash->encode($sensitiveIdentityKey->identity_id));
+        }
+        return redirect('timeline/' . $hash->encode($sensitiveIdentityKey->identity_id));
     }
 
     public function render()
@@ -98,6 +100,10 @@ class SearchIdentityWizard extends Component
                                     ->attribute("data-bs-dismiss", "alert")
                                     ->attribute("aria-label", "Close"),
                             ]) : null,
+                        Element::withTag("div")
+                            ->class("mb-3 form-floating text-center")
+                            ->attribute("wire:loading")
+                            ->text('Mohon Tunggu. Sedang mencari akun anda...'),
                         Element::withTag("div")
                             ->class("d-flex justify-content-between")
                             ->children([

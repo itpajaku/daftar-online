@@ -8,9 +8,20 @@ use Spatie\Html\Elements\Textarea;
 ?>
 
 <form wire:submit="save" class="tab-wizard wizard-circle">
+  <?php
+  if ($identity_id) {
+    echo Input::create()->type('hidden')->name('identity_id')->value($identity_id);
+  }
+  ?>
   @if (session()->has('message'))
   <div class="alert alert-success alert-dismissible fade show" role="alert">
     <strong>Berhasil!</strong> {{ session('message') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  @endif
+  @if (session()->has('error'))
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Berhasil!</strong> {{ session('error') }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   @endif

@@ -2,27 +2,59 @@
 
 namespace App\Livewire;
 
+use App\Models\Identity;
+use App\Service\HashId;
+use App\Service\HashRouteId;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Spatie\Html\Elements\Button;
 use Spatie\Html\Elements\Element;
 use Spatie\Html\Elements\Form;
 use Spatie\Html\Elements\Input;
 use Spatie\Html\Elements\Label;
 use Spatie\Html\Elements\Option;
+use Spatie\Html\Elements\A;
+use Spatie\Html\Elements\Img;
 
 #[Layout('components.layouts.wizard')]
-class VerificationStepWizard extends Component
+class BankAccountStepWizard extends Component
 {
+    use WithFileUploads;
+
     #[Validate('required', message: 'Nama Bank tidak boleh kosong')]
-    protected $nama_bank;
+    public $nama_bank;
 
     #[Validate('required', message: 'Nomor Rekening tidak boleh kosong')]
-    protected $nomor_rekening;
+    public $nomor_rekening;
 
     #[Validate('required', message: 'Nama Akun tidak boleh kosong')]
-    protected $nama_akun;
+    public $nama_akun;
+
+    #[Validate('required', message: "KTP tidak boleh kosong")]
+    #[Validate('mimes:pdf', message: "KTP harus format PDF")]
+    #[Validate('max:2048', message: "File ktp tidak boleh lebih dari 2mb")]
+    public $file_ktp;
+
+    public $identity_id;
+
+    public $identity_name;
+
+    protected $identity;
+
+    public function mount(HashRouteId $hash_id)
+    {
+        $this->identity = Identity::find($hash_id->getDecodedId());
+        if (!$this->identity) {
+            session()->flash('error', 'Identitas tidak ditemukan. Silahkan coba lagi');
+            return $this->redirect('search');
+        }
+        $this->identity_name = $this->identity->nama_lengkap;
+        $this->identity_id = $hash_id->getOriginalId();
+    }
 
     public function render()
     {
@@ -37,7 +69,18 @@ class VerificationStepWizard extends Component
                     ->child(
                         Element::withTag('h6')->text("Data anda berhasil tersimpan. Silahkan lanjutkan dengan mengisi form dibawah ini")
                     ),
-                Form::create()->children([
+                Form::create()->attribute('wire:submit', 'save')->children([
+                    Input::create()->type('hidden')
+                        ->attribute('wire:model', 'identity_id'),
+                    Element::withTag("div")->class('my-3 form-group')->children([
+                        Label::create()
+                            ->text('Nama Lengkap')
+                            ->class('form-label'),
+                        Input::create()
+                            ->disabled(true)
+                            ->value($this->identity_name ?? null)
+                            ->class('required form-control'),
+                    ]),
                     Element::withTag("div")->class('my-3 form-group')->children([
                         Label::create()
                             ->for('nama_bank')
@@ -47,12 +90,13 @@ class VerificationStepWizard extends Component
                             ->placeholder("Contoh : BCA, BRI, Mandiri, Dll")
                             ->attribute('wire:model', 'nama_bank')
                             ->name('nama_bank')
+                            ->attribute('list', 'list_daftar_bank')
                             ->id('nama_bank')
                             ->class('required form-control ' . ($this->getErrorBag()->first('nama_bank') ? ' is-invalid' : '')),
                         Element::withTag('datalist')->id('list_daftar_bank')
-                            ->children($this->getDaftarNamaBank()->map(function ($item) {
+                            ->children($this->getDaftarNamaBank()->transform(function ($item) {
                                 return Option::create()->text($item);
-                            })->all()),
+                            })),
                         $this->getErrorBag()->first('nama_bank') ? Element::withTag('div')->class('invalid-feedback')->text($this->getErrorBag()->first('nama_bank')) : null,
                     ]),
                     Element::withTag("div")->class('my-3 form-group')->children([
@@ -64,7 +108,6 @@ class VerificationStepWizard extends Component
                             ->type('number')
                             ->placeholder("Tidak perlu ada kode bank")
                             ->attribute('wire:model', 'nomor_rekening')
-                            ->attribute('list', 'list_daftar_bank')
                             ->name('nomor_rekening')
                             ->id('nomor_rekening')
                             ->class('required form-control ' . ($this->getErrorBag()->first('nomor_rekening') ? ' is-invalid' : '')),
@@ -77,15 +120,81 @@ class VerificationStepWizard extends Component
                             ->class('form-label'),
                         Input::create()
                             ->placeholder("Nama yang tertera pada rekening")
-                            ->type('number')
+                            ->type('text')
                             ->attribute('wire:model', 'nama_akun')
                             ->name('nama_akun')
                             ->id('nama_akun')
                             ->class('required form-control ' . ($this->getErrorBag()->first('nama_akun') ? ' is-invalid' : '')),
                         $this->getErrorBag()->first('nama_akun') ? Element::withTag('div')->class('invalid-feedback')->text($this->getErrorBag()->first('nama_akun')) : null,
+                    ]),
+                    Element::withTag("div")->class('my-3 form-group')->children([
+                        Label::create()
+                            ->for('file_ktp')
+                            ->text('Upload (Scan\Foto) KTP *')
+                            ->class('form-label'),
+                        Input::create()
+                            ->type('file')
+                            ->attribute('wire:model.defer', 'file_ktp')
+                            ->attribute('accept', "application/pdf")
+                            ->name('file_ktp')
+                            ->id('file_ktp')
+                            ->class('required form-control ' . ($this->getErrorBag()->first('file_ktp') ? ' is-invalid' : '')),
+                        $this->getErrorBag()->first('file_ktp') ? Element::withTag('div')->class('invalid-feedback')->text($this->getErrorBag()->first('file_ktp')) : null,
+                        Element::withTag('div')
+                            ->attribute('wire:loading')
+                            ->attribute('wire:target', 'file_ktp')
+                            ->class('text-center text-muted mt-2 text-small')
+                            ->text('Mohon Tunggu. Sendang mengunggah file KTP. Pastikan file KTP dalam format PDF dan ukuran tidak lebih dari 2MB.'),
+                    ]),
+                    session()->has('error') ? Element::withTag('div')
+                        ->class('alert alert-danger text-center')
+                        ->text(session('error')) : null,
+                    Element::withTag('div')->class('row row-cols-2')->children([
+                        Element::withTag('div')->class('col')->child(
+                            A::create()->class('btn btn-outline-danger')->href("/step-1/{$this->identity_id}")
+                                ->children([Element::withTag('i')->class('ti ti-arrow-left'), 'Kembali'])
+                        ),
+                        Element::withTag('div')->class('col text-end')->child(
+                            Button::create()->text('Simpan')->class('btn btn-primary')
+                                ->attribute('wire:loading.attr', 'disabled')
+                                ->child(Element::withTag('i')->class('ti ti-device-floppy ms-2'))
+                        )
                     ])
                 ])
-            ])->toHtml();
+            ])
+            ->toHtml();
+    }
+
+    public function save(HashId $hash)
+    {
+        $this->identity = Identity::find($hash->decodeFirst($this->identity_id));
+        $this->validate();
+        try {
+            DB::beginTransaction();
+            $file_ktp = $this->file_ktp->storeAs('ktp', 'ktp-' . $this->identity->id . '.pdf', 'public');
+            $data = [
+                'nama_bank' => $this->nama_bank,
+                'nomor_rekening' => Crypt::encryptString($this->nomor_rekening),
+                'nama_akun' => $this->nama_akun,
+                'file_ktp' => $file_ktp,
+            ];
+
+            if ($this->identity->bankAccount) {
+                $this->identity->bank_account()->update($data);
+            } else {
+                $this->identity->bank_account()->create($data);
+            }
+            $this->identity->bank_account->sensitive_bank_account_key()->updateOrCreate(
+                ['bank_account_id' => $this->identity->bank_account->id],
+                ['hash_nomor_rekening' => hash_hmac('sha256', $this->nomor_rekening, config('app.key'))]
+            );
+            DB::commit();
+            session()->flash('success', 'Data berhasil disimpan!');
+            return $this->redirect("/timeline/{$hash->encode($this->identity->id)}");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            session()->flash('error', 'Terjadi kesalahan saat menyimpan data. Silahkan coba lagi. ' . $th->getMessage());
+        }
     }
 
     protected function getDaftarNamaBank()
@@ -94,13 +203,13 @@ class VerificationStepWizard extends Component
             "A N Z PANIN",
             "ARTHA GRAHA",
             "ARTOS INDONESIA",
-            "B C A",
-            "B I I",
-            "B J B",
-            "B J B SYARIAH",
-            "B N I",
-            "B T N",
-            "B R I",
+            "BCA",
+            "BII",
+            "BJB",
+            "BJB SYARIAH",
+            "BNI",
+            "BTN",
+            "BRI",
             "BANK DKI",
             "BANK EKSEKUTIF",
             "BANK INA",
@@ -151,7 +260,7 @@ class VerificationStepWizard extends Component
             "DANAMON",
             "EKONOMI",
             "GANESHA",
-            "H S B C",
+            "HSBC",
             "MANDIRI",
             "MASPION",
             "MAYAPADA INT",
@@ -165,14 +274,14 @@ class VerificationStepWizard extends Component
             "OCBC NISP",
             "PANIN",
             "PERMATA",
-            "R B S",
+            "RBS",
             "RABOBANK",
             "ROYAL",
-            "S B I I",
-            "S C B",
+            "SBII",
+            "SCB",
             "SINARMAS",
             "SWADESI",
-            "U I B",
+            "UIB",
             "UOB BUANA",
             "BANK AGRIS",
             "BSI"

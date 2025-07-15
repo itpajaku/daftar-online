@@ -22,9 +22,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-Route::get("step-1", \App\Livewire\WelcomeStepWizard::class)->name("step-1");
+Route::get("step-1/{hash_id}", \App\Livewire\IdentityStepWizard::class)->name("step-1");
+Route::get("step-1", \App\Livewire\IdentityStepWizard::class)->name("step-1");
 
-Route::get("step-2/{hash_id}", \App\Livewire\VerificationStepWizard::class)->name("step-2");
+Route::get("step-2/{hash_id}", \App\Livewire\BankAccountStepWizard::class)->name("step-2");
+
+Route::get("timeline/{hash_id}", \App\Livewire\TimeLineWizard::class)->name("step-2");
 
 Route::get("search", \App\Livewire\SearchIdentityWizard::class)->name("search");
 

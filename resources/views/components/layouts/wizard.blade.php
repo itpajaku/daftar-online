@@ -29,7 +29,9 @@
               </a>
               <div class="card-body wizard-content">
                 <h4 class="card-title mb-3">E- Register {{ ucwords(strtolower($sys_conf['NamaPN'])) }}</h4>
-                <h6 class="card-subtitle mb-3">Memudahkan pendaftaran perkara secara online. Silahkan ikuti panduan
+                <h6 class="card-subtitle mb-3 text-muted">Memudahkan pendaftaran perkara secara online. Untuk
+                  melanjutkan, Silahkan
+                  ikuti panduan
                   dibawah.
                 </h6>
                 <hr>
