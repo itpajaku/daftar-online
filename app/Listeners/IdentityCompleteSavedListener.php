@@ -23,9 +23,10 @@ class IdentityCompleteSavedListener
      */
     public function handle(IdentityCompleteSavedEvent $event): void
     {
+        $identity = $event->bankAccount->identity;
         $waClient = new WhatsappClient(
             app('settings')['wa_admin_ecourt'],
-            "*Notifikasi Pendaftaran E-Court*\n\nTerdapat permohonan pembuatan akun E-Court pengguna lain. Silahkan verifikasi data di " . url('/login')
+            "*Notifikasi Pendaftaran E-Court*\n\nTerdapat permohonan pembuatan akun E-Court pengguna lain atas nama {$identity->nama_lengkap}. Silahkan verifikasi data di " . url('/login')
         );
 
         try {

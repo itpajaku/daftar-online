@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\ManageIdentityPage;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -22,13 +23,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('permohonan-akun', ManageIdentityPage::class)->name('permohonan-akun');
+});
+
 Route::get("step-1/{hash_id}", \App\Livewire\IdentityStepWizard::class)->name("step-1");
 Route::get("step-1", \App\Livewire\IdentityStepWizard::class)->name("step-1");
-
 Route::get("step-2/{hash_id}", \App\Livewire\BankAccountStepWizard::class)->name("step-2");
-
 Route::get("timeline/{hash_id}", \App\Livewire\TimeLineWizard::class)->name("timeline");
-
 Route::get("search", \App\Livewire\SearchIdentityWizard::class)->name("search");
 
 require __DIR__ . '/auth.php';

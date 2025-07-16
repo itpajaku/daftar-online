@@ -10,6 +10,13 @@ class Identity extends Model
 {
     protected $guarded = [];
 
+    public function casts(): array
+    {
+        return [
+            'tanggal_lahir' => 'datetime:Y-m-d'
+        ];
+    }
+
     public function getNomorTeleponOriginalAttribute(HashId $hash)
     {
         return $hash->decodeFirst($this->nomor_telepon);
