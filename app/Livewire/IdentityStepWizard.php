@@ -98,13 +98,13 @@ class IdentityStepWizard extends Component
         $hashed_nik = hash_hmac('sha256', $this->nomor_kependudukan, config('app.key'));
         $hashed_nomor_telepon = hash_hmac('sha256', $this->nomor_telepon, config('app.key'));
 
-        if (SensitiveIdentityKey::where('hash_nik', $hashed_nik)->orWhere('hash_nomor_telepon', $hashed_nomor_telepon)->exists()) {
-            session()->flash('error', 'Nomor kependudukan sudah terdaftar.');
-            return;
-        }
-
-
         try {
+            if (!$this->identity_id) {
+                if (SensitiveIdentityKey::where('hash_nik', $hashed_nik)->orWhere('hash_nomor_telepon', $hashed_nomor_telepon)->exists()) {
+                    throw new \Exception("Nomor Kependudukan Sudah Terdaftar", 1);
+                }
+            }
+
             DB::beginTransaction();
             $data = [
                 ...$this->except(['nomor_kependudukan', 'nomor_telepon', 'identity_id']),
@@ -113,7 +113,8 @@ class IdentityStepWizard extends Component
             ];
 
             if ($this->identity_id) {
-                $identity = Identity::where('id', $hashId->decodeFirst($this->identity_id))->update($data);
+                $identity = Identity::find($hashId->decodeFirst($this->identity_id));
+                $identity->update($data);
                 $identity->sensitive_identity_key()->update([
                     'hash_nik' => $hashed_nik,
                     'hash_nomor_telepon' => $hashed_nomor_telepon,
@@ -131,7 +132,7 @@ class IdentityStepWizard extends Component
             return $this->redirect("/step-2/{$hashId->encode($identity->id)}");
         } catch (\Throwable $th) {
             DB::rollBack();
-            session()->flash('error', 'Terjadi kesalahan.' . $th->getMessage());
+            session()->flash('error', 'Terjadi kesalahan. ' . $th->getMessage());
         }
     }
 }

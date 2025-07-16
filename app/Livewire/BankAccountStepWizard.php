@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Identity;
+use App\Models\SensitiveBankAccountKey;
 use App\Service\HashId;
 use App\Service\HashRouteId;
 use Illuminate\Support\Facades\Crypt;
@@ -34,10 +35,9 @@ class BankAccountStepWizard extends Component
     #[Validate('required', message: 'Nama Akun tidak boleh kosong')]
     public $nama_akun;
 
-    #[Validate('required', message: "KTP tidak boleh kosong")]
-    #[Validate('mimes:pdf', message: "KTP harus format PDF")]
-    #[Validate('max:2048', message: "File ktp tidak boleh lebih dari 2mb")]
     public $file_ktp;
+
+    public $existed_file_ktp;
 
     public $identity_id;
 
@@ -51,6 +51,12 @@ class BankAccountStepWizard extends Component
         if (!$this->identity) {
             session()->flash('error', 'Identitas tidak ditemukan. Silahkan coba lagi');
             return $this->redirect('search');
+        }
+        if ($this->identity->bank_account) {
+            $this->nama_bank = $this->identity->bank_account->nama_bank;
+            $this->nama_akun = $this->identity->bank_account->nama_akun;
+            $this->nomor_rekening = Crypt::decryptString($this->identity->bank_account->nomor_rekening);
+            $this->existed_file_ktp = $this->identity->bank_account->file_ktp;
         }
         $this->identity_name = $this->identity->nama_lengkap;
         $this->identity_id = $hash_id->getOriginalId();
@@ -145,6 +151,7 @@ class BankAccountStepWizard extends Component
                             ->attribute('wire:target', 'file_ktp')
                             ->class('text-center text-muted mt-2 text-small')
                             ->text('Mohon Tunggu. Sendang mengunggah file KTP. Pastikan file KTP dalam format PDF dan ukuran tidak lebih dari 2MB.'),
+                        $this->existed_file_ktp ? Element::withTag('p')->class('text-success')->text('KTP Sudah Disimpan. Klik di kolom apabila ingin mengganti file.') : null
                     ]),
                     session()->has('error') ? Element::withTag('div')
                         ->class('alert alert-danger text-center')
@@ -155,7 +162,7 @@ class BankAccountStepWizard extends Component
                                 ->children([Element::withTag('i')->class('ti ti-arrow-left'), 'Kembali'])
                         ),
                         Element::withTag('div')->class('col text-end')->child(
-                            Button::create()->text('Simpan')->class('btn btn-primary')
+                            Button::create()->text('Lanjutkan')->class('btn btn-primary')
                                 ->attribute('wire:loading.attr', 'disabled')
                                 ->child(Element::withTag('i')->class('ti ti-device-floppy ms-2'))
                         )
@@ -165,29 +172,39 @@ class BankAccountStepWizard extends Component
             ->toHtml();
     }
 
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName, [
+            'file_ktp' => $this->file_ktp ? 'mimes:pdf|max:2048' : 'nullable',
+        ]);
+    }
+
     public function save(HashId $hash)
     {
         $this->identity = Identity::find($hash->decodeFirst($this->identity_id));
         $this->validate();
         try {
             DB::beginTransaction();
-            $file_ktp = $this->file_ktp->storeAs('ktp', 'ktp-' . $this->identity->id . '.pdf', 'public');
+            if ($this->file_ktp) {
+                $file_ktp = $this->file_ktp->storeAs('ktp', 'ktp-' . $hash->encode($this->identity->id) . '.pdf', 'public');
+            }
+
             $data = [
                 'nama_bank' => $this->nama_bank,
                 'nomor_rekening' => Crypt::encryptString($this->nomor_rekening),
                 'nama_akun' => $this->nama_akun,
-                'file_ktp' => $file_ktp,
             ];
 
-            if ($this->identity->bankAccount) {
+            if (isset($file_ktp)) {
+                $data['file_ktp'] = $file_ktp;
+            }
+
+            if ($this->identity->bank_account) {
                 $this->identity->bank_account()->update($data);
             } else {
                 $this->identity->bank_account()->create($data);
             }
-            $this->identity->bank_account->sensitive_bank_account_key()->updateOrCreate(
-                ['bank_account_id' => $this->identity->bank_account->id],
-                ['hash_nomor_rekening' => hash_hmac('sha256', $this->nomor_rekening, config('app.key'))]
-            );
+
             DB::commit();
             session()->flash('success', 'Data berhasil disimpan!');
             return $this->redirect("/timeline/{$hash->encode($this->identity->id)}");

@@ -18,13 +18,23 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Admin Satker',
-            'email' => 'admin@mahkamahagungri.go.id',
+            'email' => 'admin@satker.go.id',
             'password' => bcrypt('Paju400622'),
         ]);
 
-        Setting::create([
-            'key' => 'theme',
-            'value' => 'light',
+        Setting::insert([
+            [
+                'key' => 'theme',
+                'value' => 'light',
+            ],
+            [
+                'key' => 'wa_admin_ecourt',
+                'value' => '6289636811489'
+            ],
+            [
+                'key' => 'admin_ecourt',
+                'value' => 'Imal Malik'
+            ]
         ]);
     }
 }

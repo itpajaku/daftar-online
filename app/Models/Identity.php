@@ -29,4 +29,9 @@ class Identity extends Model
     {
         return $this->hasOne(SensitiveIdentityKey::class, 'identities_id', 'id');
     }
+
+    public function ecourt_account()
+    {
+        return $this->hasOne(EcourtAccount::class, 'identity_id', 'id');
+    }
 }

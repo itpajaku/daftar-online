@@ -17,6 +17,9 @@ use Spatie\Html\Elements\Button;
 #[Layout('components.layouts.wizard')]
 class TimeLineWizard extends Component
 {
+    public Identity $identity;
+    public mixed $hash_id;
+
     public function mount(HashRouteId $hash_id)
     {
         $this->identity = Identity::find($hash_id->getDecodedId());
@@ -24,10 +27,16 @@ class TimeLineWizard extends Component
             session()->flash('error', 'Akun tidak ditemukan.');
             return redirect()->route('search');
         }
+        if (!$this->identity->bank_account) {
+            session()->flash('error', 'Silahkan lanjutkan proses pengisian data anda.');
+            return redirect()->route('step-2', ['hash_id' =>  $hash_id->getOriginalId()]);
+        }
+        $this->hash_id = $hash_id->getOriginalId();
     }
 
     public function render()
     {
+        $nowDate = now()->translatedFormat('l j F Y');
         return Element::withTag('section')->class('py-1 py-md-1')->children([
             Element::withTag('div')->class('container')->children([
                 Element::withTag('div')->class('card widget-card bsb-timeline-8 border-light shadow-sm')->children([
@@ -37,11 +46,18 @@ class TimeLineWizard extends Component
                             Element::withTag('li')->class('timeline-item')->children([
                                 Element::withTag('div')->class('timeline-body')->children([
                                     Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text('3 Hours Ago'),
+                                        Span::create()->text($this->identity->created_at->translatedFormat("l j F Y")),
                                     ]),
                                     Element::withTag('div')->class('timeline-content timeline-indicator')->children([
                                         Element::withTag('h6')->text('Pendaftaran Identitas Pengguna Lain.')->class('mb-1'),
-                                        Span::create()->text('User: John Doe')->class('text-secondary fs-7'),
+                                        Span::create()->text('User: ' . $this->identity->nama_lengkap)->class('text-secondary fs-7'),
+                                        A::create()
+                                            ->attribute('wire:navigate')
+                                            ->href('/step-1/' . $this->hash_id)
+                                            ->class('btn btn-sm btn-primary my-2')->children([
+                                                Element::withTag('i')->class('ti ti-pencil me-2'),
+                                                'Ubah Data'
+                                            ])
                                     ]),
                                 ]),
                             ]),
@@ -49,47 +65,52 @@ class TimeLineWizard extends Component
                             Element::withTag('li')->class('timeline-item')->children([
                                 Element::withTag('div')->class('timeline-body')->children([
                                     Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text('2 Hours Ago'),
+                                        Span::create()->text($this->identity->created_at->translatedFormat("l j F Y")),
                                     ]),
                                     Element::withTag('div')->class('timeline-content timeline-indicator')->children([
                                         Element::withTag('h6')->text('Pengisian Akun dan Nomor Rekening.')->class('mb-1'),
-                                        Span::create()->text('Bank: BCA')->class('text-secondary fs-7'),
+                                        Span::create()->text('Nama Bank: ' . $this->identity->bank_account->nama_bank)->class('text-secondary fs-7'),
+                                        Element::withTag('br'),
+                                        A::create()
+                                            ->attribute('wire:navigate')
+                                            ->href('/step-2/' . $this->hash_id)
+                                            ->class('btn btn-sm btn-primary my-2')->children([
+                                                Element::withTag('i')->class('ti ti-pencil me-2'),
+                                                'Ubah Data'
+                                            ])
                                     ]),
+
                                 ]),
                             ]),
 
                             Element::withTag('li')->class('timeline-item')->children([
                                 Element::withTag('div')->class('timeline-body')->children([
                                     Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text('20 Minutes Ago'),
+                                        Span::create()->text($nowDate),
                                     ]),
-                                    Element::withTag('div')->class('timeline-content timeline-indicator')->children([
-                                        Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
-                                        Span::create()->text('Status: Sudah Terbit')->class('text-secondary fs-7'),
-                                        Element::withTag('div')->attribute('role', 'alert')->class('alert alert-success mt-2')->children([
-                                            Element::withTag('i')->class('bi bi-check-circle-fill me-1'),
-                                            Span::create()->text('Pendaftaran berhasil, User : johndoe@gmail.com. Password: 5xFGG17'),
+                                    $this->identity->ecourt_account
+                                        ? $this->existedEcourtAccountCard()
+                                        : $this->notExistedEcourtAccountCard()
+                                ]),
+                            ]),
+
+                            $this->identity->ecourt_account
+                                ? Element::withTag('li')->class('timeline-item')->children([
+                                    Element::withTag('div')->class('timeline-body')->children([
+                                        Element::withTag('div')->class('timeline-meta')->children([
+                                            Span::create()->text($nowDate),
+                                        ]),
+                                        Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+                                            Element::withTag('h6')->text('Silahkan lanjutkan pendaftaran anda di E-Court Mahkamah Agung Republik Indonesia.')->class('mb-1'),
+                                            A::create()
+                                                ->href('https://ecourt.mahkamahagung.go.id/')
+                                                ->text('Kunjungi E-Court')
+                                                ->class('btn btn-primary mt-2')
+                                                ->child(Element::withTag('i')->class('bi bi-box-arrow-up-right ms-2'))
+                                                ->attribute('target', '_blank'),
                                         ]),
                                     ]),
-                                ]),
-                            ]),
-
-                            Element::withTag('li')->class('timeline-item')->children([
-                                Element::withTag('div')->class('timeline-body')->children([
-                                    Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text('19 Minutes Ago'),
-                                    ]),
-                                    Element::withTag('div')->class('timeline-content timeline-indicator')->children([
-                                        Element::withTag('h6')->text('Silahkan lanjutkan pendaftaran anda di E-Court Mahkamah Agung Republik Indonesia.')->class('mb-1'),
-                                        A::create()
-                                            ->href('https://ecourt.mahkamahagung.go.id/')
-                                            ->text('Kunjungi E-Court')
-                                            ->class('btn btn-primary mt-2')
-                                            ->child(Element::withTag('i')->class('bi bi-box-arrow-up-right ms-2'))
-                                            ->attribute('target', '_blank'),
-                                    ]),
-                                ]),
-                            ]),
+                                ]) : null,
                         ]),
                     ]),
                     A::create()
@@ -107,5 +128,28 @@ class TimeLineWizard extends Component
     public function redirectToSearch()
     {
         return redirect()->route('homepage');
+    }
+
+    public function existedEcourtAccountCard()
+    {
+        return  Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+            Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
+            Span::create()->text('Status: Sudah Terbit')->class('text-secondary fs-7'),
+            Element::withTag('div')->attribute('role', 'alert')->class('alert alert-success mt-2')->children([
+                Element::withTag('i')->class('bi bi-check-circle-fill me-1'),
+                Span::create()->text('Pendaftaran berhasil, User : johndoe@gmail.com. Password: 5xFGG17'),
+            ]),
+        ]);
+    }
+
+    public function notExistedEcourtAccountCard()
+    {
+        return  Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+            Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
+            Span::create()->text('Status: Belum Terbit')->class('text-danger fs-7'),
+            Element::withTag('div')->attribute('role', 'alert')->class('alert alert-warning mt-2')->children([
+                Span::create()->text('Silahkan Tunggu Admin untuk memverifikasi data anda'),
+            ]),
+        ]);
     }
 }
