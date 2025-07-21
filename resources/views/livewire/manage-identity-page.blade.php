@@ -1,9 +1,7 @@
 <x-slot:sidebar>
   <x-layouts.sidebar />
 </x-slot:sidebar>
-<?php
 
-?>
 <div class="container-fluid">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
     <h3 class="fw-semibold">Permohonan Pembuatan Akun E-Court</h3>
@@ -117,7 +115,8 @@
                       <td>{{ $i->agama }}</td>
                       <td>{{ Str::substr($i->alamat, 0, 20) }} ...</td>
                       <td class="text-center">
-                        <a wire:navigate href="{{ route('/identity/', ['id' => $i->id]) }}" class="btn btn-primary">
+                        <a wire:navigate href="{{ url('/identity', ['id' => $hash->encode($i->id)]) }}"
+                          class="btn btn-primary">
                           <i class="bi bi-eye"></i>
                           Detail
                         </a>
@@ -127,6 +126,7 @@
                 </tbody>
               </table>
             </div>
+            {{ $identities->links() }}
           </div>
         </div>
       </div>

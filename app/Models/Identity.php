@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use App\Service\HashId;
+use App\Traits\UseHashedId;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
 class Identity extends Model
 {
+    use UseHashedId;
+
     protected $guarded = [];
 
     public function casts(): array
@@ -17,9 +21,21 @@ class Identity extends Model
         ];
     }
 
-    public function getNomorTeleponOriginalAttribute(HashId $hash)
+    protected function nomor_kependudukan()
     {
-        return $hash->decodeFirst($this->nomor_telepon);
+        return Attribute::make(
+            get: fn(string $val) => Crypt::decryptString($val),
+        );
+    }
+
+    public function getHashedIdAttribute()
+    {
+        return $this->hashId()->encode($this->id);
+    }
+
+    public function getNomorTeleponOriginalAttribute()
+    {
+        return Crypt::decryptString($this->nomor_telepon);
     }
 
     public function getNomorKependudukanOriginalAttribute()
