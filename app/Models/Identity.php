@@ -6,11 +6,13 @@ use App\Service\HashId;
 use App\Traits\UseHashedId;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Crypt;
 
 class Identity extends Model
 {
     use UseHashedId;
+    use SoftDeletes;
 
     protected $guarded = [];
 

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('agama');
             $table->string('alamat', 512);
             $table->string('kewarganegaraan')->default('WNI'); //
+            $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
     }

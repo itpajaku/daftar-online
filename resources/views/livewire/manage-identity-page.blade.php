@@ -87,6 +87,10 @@
         <div class="card-body">
           <div class="list-group list-group-flush">
             <div class="table-responsive">
+              {!! session('alert_error') !!}
+              @if (session()->has('alert_success'))
+                {!! session('alert_success') !!}
+              @endif
               <table class="table table-hover table-bordered text-nowrap">
                 <thead class="text-center">
                   <tr>

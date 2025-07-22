@@ -8,7 +8,7 @@
       <h3 class="fw-semibold">Detail Permohonan</h3>
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Daftar Permohonan</a></li>
+          <li class="breadcrumb-item"><a href="{{ url('/permohonan-akun') }}">Daftar Permohonan</a></li>
           <li class="breadcrumb-item"><a href="#">Detail</a></li>
           <li class="breadcrumb-item active" aria-current="page">{{ $identity->nama_lengkap }}</li>
         </ol>
@@ -148,6 +148,9 @@
             <hr class="m-0" />
             <div class="card-body">
               <h5 class="card-title mb-0">Bank Account</h5>
+              @if (session('alert_download_error'))
+                {!! session('alert_download_error') !!}
+              @endif
             </div>
             <hr class="m-0" />
             <div class="card-body">
@@ -190,7 +193,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">File KTP :</label>
                     <div class="col-md-8">
-                      <button class="btn btn-success btn-sm">
+                      <button wire:click="download_ktp" class="btn btn-success btn-sm">
                         <i class="bi bi-download"></i>
                         Download KTP
                       </button>
@@ -212,7 +215,8 @@
                           <i class="bi bi-pencil-square "></i>
                           Edit
                         </button>
-                        <button type="button" class="btn bg-danger-subtle text-danger ms-6">
+                        <button wire:click="delete" type="button" class="btn bg-danger-subtle text-danger ms-6"
+                          wire:confirm="Apa anda yakin ? User tidak akan bisa melihat akun ecourt mereka jika data ini dihapus.">
                           <i class="bi bi-trash"></i>
                           Hapus Data
                         </button>
