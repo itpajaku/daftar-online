@@ -50,7 +50,8 @@ class TimeLineWizard extends Component
                                     ]),
                                     Element::withTag('div')->class('timeline-content timeline-indicator')->children([
                                         Element::withTag('h6')->text('Pendaftaran Identitas Pengguna Lain.')->class('mb-1'),
-                                        Span::create()->text('User: ' . $this->identity->nama_lengkap)->class('text-secondary fs-7'),
+                                        Span::create()->text('Nama Lengkap: ' . $this->identity->nama_lengkap)->class('text-secondary fs-7'),
+                                        Element::withTag('br'),
                                         A::create()
                                             ->attribute('wire:navigate')
                                             ->href('/step-1/' . $this->hash_id)
@@ -137,7 +138,10 @@ class TimeLineWizard extends Component
             Span::create()->text('Status: Sudah Terbit')->class('text-secondary fs-7'),
             Element::withTag('div')->attribute('role', 'alert')->class('alert alert-success mt-2')->children([
                 Element::withTag('i')->class('bi bi-check-circle-fill me-1'),
-                Span::create()->text('Pendaftaran berhasil, User : johndoe@gmail.com. Password: 5xFGG17'),
+                Span::create()->text("Pendaftaran berhasil"),
+                Element::withTag('br'),
+                Span::create()->text("User : {$this->identity->ecourt_account->username}. Password: {$this->identity->ecourt_account->password}"),
+                Element::withTag('br'),
             ]),
         ]);
     }

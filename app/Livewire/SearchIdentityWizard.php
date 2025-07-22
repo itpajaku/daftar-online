@@ -22,7 +22,7 @@ class SearchIdentityWizard extends Component
     #[Validate('required', message: 'Nomor telepon tidak boleh kosong.')]
     public $nomor_telepon;
 
-    public function search(HashId $hash)
+    public function search()
     {
         $this->validate();
         $hashedNomorTelepon = hash_hmac('sha256', $this->nomor_telepon, config('app.key'));
@@ -32,9 +32,9 @@ class SearchIdentityWizard extends Component
             return;
         }
         if (!$sensitiveIdentityKey->identity->bank_account) {
-            return redirect('step-2/' . $hash->encode($sensitiveIdentityKey->identity_id));
+            return redirect('step-2/' . $sensitiveIdentityKey->identity->hashed_id);
         }
-        return redirect('timeline/' . $hash->encode($sensitiveIdentityKey->identity_id));
+        return redirect('timeline/' . $sensitiveIdentityKey->identity->hashed_id);
     }
 
     public function render()
