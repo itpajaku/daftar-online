@@ -28,7 +28,7 @@ class BankAccountSavedListener
             [
                 'hash_nomor_rekening' => hash_hmac(
                     'sha256',
-                    Crypt::decryptString($event->bankAccount->nomor_rekening),
+                    $event->bankAccount->nomor_rekening,
                     config('app.key')
                 )
             ]
