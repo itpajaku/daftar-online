@@ -25,3 +25,6 @@ yarn-error.log
 *.cert
 *.pem
 logs/*.log
+**/caddy
+frankenphp
+frankenphp-worker.php
