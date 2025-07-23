@@ -14,7 +14,7 @@ echo "🚀 2. Menjalankan container..."
 docker run -d --name $CONTAINER_NAME -p $HOST_PORT:80 $IMAGE_NAME
 
 echo "📁 3. Menyalin .env.production ke container..."
-docker cp .env.production $CONTAINER_NAME:/var/www/html/.env
+docker cp .env.example $CONTAINER_NAME:/app/.env
 
 echo "⏳ 4. Menunggu Laravel siap..."
 sleep 5  # Beri waktu container startup
