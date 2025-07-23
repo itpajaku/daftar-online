@@ -1,32 +1,28 @@
-# Gunakan image FrankenPHP sebagai base image
-FROM dunglas/frankenphp
+# Gunakan image resmi frankenphp dengan PHP 8.2 atau versi terbaru
+FROM dunglas/frankenphp:latest
 
-# Set working directory di dalam container
+# Set working directory di container
 WORKDIR /app
 
-# Salin file Laravel ke container
+# Salin seluruh source code Laravel ke dalam container
 COPY . /app
 
-# Install dependencies Laravel
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install --no-dev --optimize-autoloader
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set permission untuk Laravel (storage dan bootstrap/cache)
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
-    && chmod -R 775 /app/storage /app/bootstrap/cache
+RUN cp .env.example .env
+# Install dependensi menggunakan Composer
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-# Salin file konfigurasi FrankenPHP jika kamu punya
-# COPY frankenphp.yaml /etc/frankenphp.yaml
+# Berikan permission untuk Laravel storage & bootstrap
+RUN chmod -R 775 storage bootstrap/cache
 
-# Jalankan perintah artisan untuk generate key (hanya jika belum)
-# Pastikan .env sudah tersedia
-RUN php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && php artisan optimize
+# Jalankan Laravel optimization commands
+RUN php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
 
 # Expose port 80 untuk HTTP
 EXPOSE 80
 
-# Perintah default untuk menjalankan FrankenPHP
-CMD ["frankenphp", "--document-root=/app/public", "--worker=/app/public/index.php"]
+# Gunakan FrankenPHP untuk menjalankan Laravel
+CMD ["frankenphp", "--document-root", "public", "--bootstrap", "bootstrap/app.php"]

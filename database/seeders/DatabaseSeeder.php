@@ -34,7 +34,11 @@ class DatabaseSeeder extends Seeder
             [
                 'key' => 'admin_ecourt',
                 'value' => 'Imal Malik'
-            ]
+            ],
+            [
+                'key' => 'satker',
+                'value' => 'Pengadilan Agama Jakarta Utara'
+            ],
         ]);
     }
 }
