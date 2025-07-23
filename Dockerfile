@@ -1,28 +1,33 @@
-# Gunakan image resmi frankenphp dengan PHP 8.2 atau versi terbaru
-FROM dunglas/frankenphp:latest
+FROM dunglas/frankenphp
 
-# Set working directory di container
 WORKDIR /app
 
-# Salin seluruh source code Laravel ke dalam container
 COPY . /app
+
+RUN apt-get update && apt-get install -y zip libzip-dev
+RUN docker-php-ext-install pcntl zip
+RUN docker-php-ext-enable zip
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \ 
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN cp .env.example .env
-# Install dependensi menggunakan Composer
+
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-# Berikan permission untuk Laravel storage & bootstrap
+RUN php artisan octane:install --server=frankenphp
+
 RUN chmod -R 775 storage bootstrap/cache
 
-# Jalankan Laravel optimization commands
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
 
-# Expose port 80 untuk HTTP
+RUN npm install && npm run build 
 EXPOSE 80
 
-# Gunakan FrankenPHP untuk menjalankan Laravel
-CMD ["frankenphp", "--document-root", "public", "--bootstrap", "bootstrap/app.php"]
+CMD ["php", "artisan", "octane:frankenphp" , "--port=80", "--host=0.0.0.0"]

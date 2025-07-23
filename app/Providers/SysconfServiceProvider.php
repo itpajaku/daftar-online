@@ -21,7 +21,7 @@ class SysconfServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $sysconf = Sysconf::where("id", ">=", 61)->get();
-        View::share("sys_conf", $sysconf->pluck('value', 'name')->toArray());
+        // $sysconf = Sysconf::where("id", ">=", 61)->get();
+        // View::share("sys_conf", $sysconf->pluck('value', 'name')->toArray());
     }
 }
