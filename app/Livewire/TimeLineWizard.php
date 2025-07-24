@@ -22,6 +22,10 @@ class TimeLineWizard extends Component
 
     public function mount(HashRouteId $hash_id)
     {
+        $this->hash_id = $hash_id->getOriginalId();
+        if (!$this->hash_id) {
+            return redirect('/search')->with('error', 'Akun tidak ditemukan');
+        }
         $this->identity = Identity::find($hash_id->getDecodedId());
         if (!$this->identity) {
             session()->flash('error', 'Akun tidak ditemukan.');
@@ -31,7 +35,6 @@ class TimeLineWizard extends Component
             session()->flash('error', 'Silahkan lanjutkan proses pengisian data anda.');
             return redirect()->route('step-2', ['hash_id' =>  $hash_id->getOriginalId()]);
         }
-        $this->hash_id = $hash_id->getOriginalId();
     }
 
     public function render()
