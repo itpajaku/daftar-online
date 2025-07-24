@@ -21,7 +21,9 @@ sleep 5  # Beri waktu container startup
 
 echo "🔃 5. Menjalankan migrate dan seed..."
 docker exec -it $CONTAINER_NAME php artisan migrate
+sleep 10  # Beri waktu container startup
 docker exec -it $CONTAINER_NAME php artisan db:seed
+sleep 10  # Beri waktu container startup
 
 echo "🔑 6. Generating key..."
 docker exec -t $CONTAINER_NAME php artisan key:generate
