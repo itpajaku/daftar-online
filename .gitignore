@@ -28,4 +28,3 @@ logs/*.log
 **/caddy
 frankenphp
 frankenphp-worker.php
-deploy.sh

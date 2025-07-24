@@ -32,3 +32,4 @@ frankenphp-worker.php
 /database/*.sqlite
 /database/*.db
 /database/*.sql
+deploy.sh
