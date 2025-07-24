@@ -101,7 +101,7 @@ class IdentityStepWizard extends Component
         try {
             if (!$this->identity_id) {
                 if (SensitiveIdentityKey::where('hash_nik', $hashed_nik)->orWhere('hash_nomor_telepon', $hashed_nomor_telepon)->exists()) {
-                    throw new \Exception("Nomor Kependudukan Sudah Terdaftar", 1);
+                    throw new \Exception("Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar", 1);
                 }
             }
 
