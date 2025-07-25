@@ -22,7 +22,7 @@ class TimeLineWizard extends Component
 
     public function mount(HashRouteId $hash_id)
     {
-        $this->hash_id = $hash_id->getOriginalId();
+        $this->hash_id = $hash_id->getDecodedId();
         if (!$this->hash_id) {
             return redirect('/search')->with('error', 'Akun tidak ditemukan');
         }
@@ -131,7 +131,7 @@ class TimeLineWizard extends Component
 
     public function redirectToSearch()
     {
-        return redirect()->route('homepage');
+        return redirect()->route('home');
     }
 
     public function existedEcourtAccountCard()

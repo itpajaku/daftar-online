@@ -151,6 +151,10 @@ class BankAccountStepWizard extends Component
                             ->attribute('wire:target', 'file_ktp')
                             ->class('text-center text-muted mt-2 text-small')
                             ->text('Mohon Tunggu. Sendang mengunggah file KTP. Pastikan file KTP dalam format PDF dan ukuran tidak lebih dari 2MB.'),
+                        Element::withTag('div')
+                            ->attribute('wire:loading')
+                            ->class('text-center text-muted mt-2 text-small')
+                            ->text('Mohon Tunggu...'),
                         $this->existed_file_ktp ? Element::withTag('p')->class('text-success')->text('KTP Sudah Disimpan. Klik di kolom apabila ingin mengganti file.') : null
                     ]),
                     session()->has('error') ? Element::withTag('div')
