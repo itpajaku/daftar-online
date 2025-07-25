@@ -16,7 +16,8 @@ docker run -d --name $CONTAINER_NAME -p $HOST_PORT:80 $IMAGE_NAME
 echo "📁 3. Menyalin .env.production ke container..."
 docker cp .env.example $CONTAINER_NAME:/app/.env
 
-echo "⏳ 4. Menunggu Laravel siap..."
+echo "⏳ 4. Menyiapkan Database..."
+docker exec -it $CONTAINER_NAME touch database/database.sqlite
 sleep 5  # Beri waktu container startup
 
 echo "🔃 5. Menjalankan migrate dan seed..."
