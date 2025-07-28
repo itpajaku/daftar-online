@@ -35,4 +35,5 @@ return [
         ],
     ],
 
+    'wa_api' => env('WA_API_BASE_URL')
 ];
