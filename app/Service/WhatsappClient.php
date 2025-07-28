@@ -13,7 +13,7 @@ class WhatsappClient
     protected string $phone_number,
     protected string $message
   ) {
-    $this->baseUrl = env('WA_API_BASE_URL', '192.168.0.202:3060');
+    $this->baseUrl = env('WA_API_BASE_URL');
     if ($this->phone_number[0] == '0') {
       $this->phone_number = Str::replaceFirst('0', '62', $this->phone_number);
     }
