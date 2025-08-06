@@ -15,8 +15,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN cp .env.example .env
-
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 RUN php artisan octane:install --server=frankenphp
