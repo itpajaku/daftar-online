@@ -214,7 +214,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">File KTP :</label>
                     <div class="col-md-8">
-                      <button wire:click="download_ktp" class="btn btn-success btn-sm">
+                      <button type="button" wire:click="download_ktp" class="btn btn-success btn-sm">
                         <i class="bi bi-download"></i>
                         Download KTP
                       </button>
