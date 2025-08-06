@@ -74,7 +74,8 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Date of Birth :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->tempat_lahir }}, {{ $identity->tanggal_lahir->format('j F Y') }}</p>
+                      <p>{{ $identity->tempat_lahir }}, {{ $identity->tanggal_lahir->format('j F Y') }}
+                        ({{ $identity->tanggal_lahir->format('d/m/Y') }})</p>
                     </div>
                   </div>
                 </div>
@@ -133,11 +134,31 @@
                   </div>
                 </div>
                 <!--/span-->
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="form-label text-end col-md-4">Email :</label>
+                    <div class="col-md-8">
+                      <p>{{ $identity->email }}</p>
+                    </div>
+                  </div>
+                </div>
+                <!--/span-->
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="form-label text-end col-md-4">Status Nikah :</label>
+                    <div class="col-md-8">
+                      <p>{{ $identity->status_perkawinan }}</p>
+                    </div>
+                  </div>
+                </div>
+                <!--/span-->
                 {{-- <div class="col-md-6">
                   <div class="form-group row">
-                    <label class="form-label text-end col-md-4">Pendidikan :</label>
+                    <label class="form-label text-end col-md-4">Email :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->pendidikan }}</p>
+                      <p>{{ $identity->email }}</p>
                     </div>
                   </div>
                 </div> --}}
