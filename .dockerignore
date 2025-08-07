@@ -33,3 +33,4 @@ frankenphp-worker.php
 /database/*.db
 /database/*.sql
 deploy.sh
+*.phar
