@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y zip libzip-dev
 RUN docker-php-ext-install pcntl zip bcmath
 RUN docker-php-ext-enable zip
 
-RUN curl -sS --connect-timeout 10 --max-time 60 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -fsSL --connect-timeout 10 --max-time 60 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \ 
     apt-get install -y nodejs && \
