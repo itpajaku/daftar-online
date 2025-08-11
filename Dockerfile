@@ -19,8 +19,8 @@ WORKDIR /app
 COPY . /app
 
 RUN apt-get update && apt-get install -y zip libzip-dev \
-    && docker-php-ext-install pcntl zip bcmath \
-    && docker-php-ext-enable zip
+    && docker-php-ext-install pcntl zip bcmath pdo pdo_mysql mysqli \
+    && docker-php-ext-enable zip pdo_mysql
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
