@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         User::insert([
             'name' => 'Admin Satker',
-            'email' => 'admin@pajakartautara.id',
-            'password' => bcrypt('paju400622'),
+            'email' => env('ADMIN_EMAIL', 'admin@pengadilan.go.id'),
+            'password' => env('ADMIN_PASSWORD', bcrypt('pengadilanindonesia')),
             'email_verified_at' => now(),
             'remember_token' => Str::random(10)
         ]);
@@ -30,15 +30,15 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'key' => 'wa_admin_ecourt',
-                'value' => '6289636811489'
+                'value' => env('WA_ADMIN_ECOURT', '6281234567890')
             ],
             [
                 'key' => 'admin_ecourt',
-                'value' => 'Imal Malik'
+                'value' => env('ADMIN_ECOURT', 'Admin Ecourt')
             ],
             [
                 'key' => 'satker',
-                'value' => 'Pengadilan Agama Jakarta Utara'
+                'value' => env('SATKER', 'Pengadilan Negeri Contoh')
             ],
         ]);
     }
