@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('permohonan-akun', App\Livewire\ManageIdentityPage::class)->name('permohonan-akun');
 
     Route::get('identity/{hash_id}', App\Livewire\IdentityDetailPage::class);
+    Route::get('identity/{hash_id}/edit', App\Livewire\IdentityEditPage::class)->name('identity.edit');
 });
 
 Route::get("step-1/{hash_id}", \App\Livewire\IdentityStepWizard::class)->name("step-1");

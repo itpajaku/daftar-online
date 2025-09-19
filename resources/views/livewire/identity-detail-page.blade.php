@@ -232,10 +232,11 @@
                   <div class="col-md-6">
                     <div class="row">
                       <div class="col-md-offset-3 col-md-9">
-                        <button type="submit" class="btn btn-primary">
+                        <a href="{{ route('identity.edit', ['hash_id' => $identity->hashed_id]) }}"
+                          class="btn btn-primary">
                           <i class="bi bi-pencil-square "></i>
                           Edit
-                        </button>
+                        </a>
                         <button wire:click="delete" type="button" class="btn bg-danger-subtle text-danger ms-6"
                           wire:confirm="Apa anda yakin ? User tidak akan bisa melihat akun ecourt mereka jika data ini dihapus.">
                           <i class="bi bi-trash"></i>
