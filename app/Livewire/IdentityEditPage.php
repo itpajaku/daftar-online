@@ -72,6 +72,9 @@ class IdentityEditPage extends Component
         $hashedNik = hash('sha256', $this->nomor_kependudukan);
         $existingKey = \App\Models\SensitiveIdentityKey::where('hash_nomor_telepon', $hashedNomorTelepon)
             ->where('identities_id', '!=', $this->identity->id)
+            ->whereHas('identity', function ($q) {
+                $q->whereNull('deleted_at');
+            })
             ->first();
         if ($existingKey) {
             $this->addError('nomor_telepon', 'Nomor telepon sudah digunakan oleh identitas lain.');

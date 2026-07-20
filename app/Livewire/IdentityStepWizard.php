@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 #[Layout('components.layouts.wizard')]
 class IdentityStepWizard extends Component
 {
+    protected $listeners = ['deleteAndBack'];
     #[Validate('required', message: 'Nama lengkap tidak boleh kosong.')]
     #[Validate('max:255', message: 'Maksimal 255 karakter.')]
     public $nama_lengkap;
@@ -72,6 +73,41 @@ class IdentityStepWizard extends Component
         return view('livewire.identity-step-wizard');
     }
 
+    public function confirmBack()
+    {
+        // If there's no stored identity yet, do a server-side redirect to home
+        if (!$this->identity_id) {
+            return $this->redirect(route('home'));
+        }
+
+        // If there is a stored identity, confirmation is handled client-side
+        // (the front-end will emit 'deleteAndBack' if the user confirms).
+        return;
+    }
+
+    public function deleteAndBack()
+    {
+        try {
+            DB::beginTransaction();
+            $hashId = app(HashId::class);
+            $id = $hashId->decodeFirst($this->identity_id);
+            $identity = Identity::find($id);
+            if ($identity) {
+                // delete sensitive key if exists
+                if ($identity->sensitive_identity_key) {
+                    $identity->sensitive_identity_key()->delete();
+                }
+                $identity->delete();
+            }
+            DB::commit();
+            return $this->redirect(route('home'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal menghapus data.');
+            return $this->redirect(route('home'));
+        }
+    }
+
     public function mount(HashRouteId $hash_id, HashId $hash)
     {
         if ($hash_id->getDecodedId()) {
@@ -100,7 +136,14 @@ class IdentityStepWizard extends Component
 
         try {
             if (!$this->identity_id) {
-                if (SensitiveIdentityKey::where('hash_nik', $hashed_nik)->orWhere('hash_nomor_telepon', $hashed_nomor_telepon)->exists()) {
+                $exists = SensitiveIdentityKey::where(function ($q) use ($hashed_nik, $hashed_nomor_telepon) {
+                    $q->where('hash_nik', $hashed_nik)
+                        ->orWhere('hash_nomor_telepon', $hashed_nomor_telepon);
+                })->whereHas('identity', function ($q) {
+                    $q->whereNull('deleted_at');
+                })->exists();
+
+                if ($exists) {
                     throw new \Exception("Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar", 1);
                 }
             }

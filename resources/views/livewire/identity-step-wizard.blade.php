@@ -19,12 +19,6 @@ use Spatie\Html\Elements\Textarea;
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   @endif
-  @if (session()->has('error'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      <strong>Berhasil!</strong> {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  @endif
   <div class="d-flex  gap-3 align-items-center bg-primary justify-content-start rounded pt-2 px-2">
     <h5>
       <i class="ti ti-user text-white"></i>
@@ -284,15 +278,17 @@ use Spatie\Html\Elements\Textarea;
     </div>
   @endif
 
-  <div class="text-center" wire:loading>
-    <p>Mohon Tunggu ...</p>
+  <div wire:loading>
+    <div class="text-center">
+      <p>Mohon Tunggu ...</p>
+    </div>
   </div>
   <div class="row row-cols-md-2">
     <div class="col">
-      <a href="{{ route('home') }}" class="btn btn-danger btn-block">
+      <button type="button" wire:click.prevent="confirmBack" class="btn btn-danger btn-block">
         <i class="ti ti-arrow-left"></i>
         Kembali
-      </a>
+      </button>
     </div>
     <div class="col text-end">
       <button type="submit" class="btn btn-success button">
@@ -302,3 +298,23 @@ use Spatie\Html\Elements\Textarea;
     </div>
   </div>
 </form>
+
+@push('scripts')
+  <script>
+    Livewire.on('confirmDeleteIdentity', function(identityId) {
+      if (confirm(
+          'Data yang Anda masukkan sudah tersimpan. Jika kembali, data akan dihapus dan Anda harus mengisi ulang. Lanjutkan menghapus?'
+        )) {
+        Livewire.emit('deleteAndBack');
+      }
+    });
+
+    Livewire.on('redirectHome', function() {
+      window.location = '{{ route('home') }}';
+    });
+
+    Livewire.on('toastError', function(message) {
+      alert(message || 'Terjadi kesalahan');
+    });
+  </script>
+@endpush

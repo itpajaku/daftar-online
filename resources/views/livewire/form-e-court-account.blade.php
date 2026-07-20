@@ -1,5 +1,5 @@
 <div>
-  <form wire:submit="save">
+  <form wire:submit="save" id="form-ecourt">
     @if (session('alert_error'))
       {!! session('alert_error') !!}
     @endif

@@ -181,7 +181,7 @@
                     <label class="form-label text-end col-md-4">Nama Bank :</label>
                     <div class="col-md-8">
                       <p>
-                        {{ $identity->bank_account->nama_bank }}
+                        {{ $identity->bank_account ? $identity->bank_account->nama_bank : '-' }}
                       </p>
                     </div>
                   </div>
@@ -191,7 +191,7 @@
                     <label class="form-label text-end col-md-4">Nomor Rekening :</label>
                     <div class="col-md-8">
                       <p>
-                        {{ $identity->bank_account->nomor_rekening }}
+                        {{ $identity->bank_account ? $identity->bank_account->nomor_rekening : '-' }}
                       </p>
                     </div>
                   </div>
@@ -205,7 +205,7 @@
                     <label class="form-label text-end col-md-4">Nama Akun :</label>
                     <div class="col-md-8">
                       <p>
-                        {{ $identity->bank_account->nama_akun }}
+                        {{ $identity->bank_account ? $identity->bank_account->nama_akun : '-' }}
                       </p>
                     </div>
                   </div>
@@ -214,7 +214,8 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">File KTP :</label>
                     <div class="col-md-8">
-                      <button type="button" wire:click="download_ktp" class="btn btn-success btn-sm">
+                      <button type="button" wire:click="download_ktp" class="btn btn-success btn-sm"
+                        @if (!($identity->bank_account && $identity->bank_account->ktp)) disabled @endif>
                         <i class="bi bi-download"></i>
                         Download KTP
                       </button>
@@ -237,9 +238,9 @@
                           <i class="bi bi-pencil-square "></i>
                           Edit
                         </a>
-                        <button wire:click="delete" type="button" class="btn bg-danger-subtle text-danger ms-6"
-                          wire:confirm="Apa anda yakin ? User tidak akan bisa melihat akun ecourt mereka jika data ini dihapus.">
-                          <i class="bi bi-trash"></i>
+                        <button wire:click="delete" type="button" class="btn btn-danger ms-6"
+                          onclick="if(!confirm('Apa anda yakin ? User tidak akan bisa melihat akun ecourt mereka jika data ini dihapus.')){return false;}">
+                          <i class="bi bi-trash me-1"></i>
                           Hapus Data
                         </button>
                       </div>

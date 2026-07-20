@@ -57,8 +57,8 @@
                       <td>{{ ++$n }}</td>
                       <td>{{ $i->nama_lengkap }} <br> {{ $i->jenis_kelamin }}</td>
                       <td>{{ $i->tempat_lahir }} {{ $i->tanggal_lahir->format('j F Y') }}</td>
-                      <td>{{ Crypt::decryptString($i->nomor_kependudukan) }}</td>
-                      <td>{{ Crypt::decryptString($i->nomor_telepon) }}</td>
+                      <td>{{ $i->nomor_kependudukan }}</td>
+                      <td>{{ $i->nomor_telepon }}</td>
                       <td>{{ $i->pekerjaan }}</td>
                       <td>{{ $i->pendidikan }}</td>
                       <td>{{ $i->agama }}</td>

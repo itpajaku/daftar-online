@@ -20,6 +20,23 @@
           <i class="bi bi-people-fill me-2"></i> Permohonan Akun
         </a>
       </li>
+      <hr>
+      <li class="nav-item">
+        Settings
+      </li>
+      <hr>
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center {{ request()->routeIs('web-hooks') ? 'active' : '' }}"
+          wire:navigate href="{{ route('web-hooks') }}">
+          <i class="bi bi-rocket-takeoff-fill me-2"></i> Web Hooks
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center {{ request()->routeIs('webhook.logs') ? 'active' : '' }}"
+          wire:navigate href="{{ route('webhook.logs') }}">
+          <i class="bi bi-journal-text me-2"></i> Webhook Logs
+        </a>
+      </li>
     </ul>
   </div>
 

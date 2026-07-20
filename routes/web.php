@@ -15,6 +15,7 @@ Route::get('dashboard', \App\Livewire\Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
@@ -22,6 +23,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
     Route::get('settings/admin_ecourt', SettingAdminEcourt::class)->name('settings.admin_ecourt');
+    Route::get('web-hooks', \App\Livewire\WebHooksPage::class)->name('web-hooks');
+    Route::get('webhook-logs', \App\Livewire\WebHookLogPage::class)->name('webhook.logs');
 });
 
 Route::middleware(['auth'])->group(function () {

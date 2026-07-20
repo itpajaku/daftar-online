@@ -13,8 +13,8 @@ class BankAccount extends Model
     protected $guarded = [];
 
     protected $dispatchesEvents = [
-        'created' => IdentityCompleteSavedEvent::class,
-        'saved' => BankAccountSavedEvent::class
+        // 'created' => IdentityCompleteSavedEvent::class,
+        // 'saved' => BankAccountSavedEvent::class
     ];
 
     protected function nomorRekening(): Attribute

@@ -9,12 +9,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Crypt;
 
+
 class Identity extends Model
 {
     use UseHashedId;
     use SoftDeletes;
 
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::created(function ($identity) {
+            event(new \App\Events\IdentityCreateEvent($identity));
+        });
+    }
 
     public function casts(): array
     {
