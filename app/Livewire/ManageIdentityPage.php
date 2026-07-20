@@ -12,6 +12,8 @@ use Livewire\WithPagination;
 class ManageIdentityPage extends Component
 {
     use WithPagination;
+    
+    protected $paginationTheme = 'bootstrap';
 
     public function render(HashId $hash)
     {
