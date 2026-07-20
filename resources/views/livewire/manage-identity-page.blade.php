@@ -6,6 +6,9 @@
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
     <h3 class="fw-semibold">Permohonan Pembuatan Akun E-Court</h3>
     <div class="btn-toolbar mb-2 mb-md-0">
+      <a href="{{ url('step-1') }}" wire:navigate class="btn btn-sm btn-primary me-2">
+        <i class="bi bi-plus-circle me-1"></i> Tambah Permohonan
+      </a>
       <div class="btn-group me-2">
         <button type="button" class="btn btn-sm btn-outline-primary">
           <i class="bi bi-share me-1"></i> Share
@@ -57,8 +60,8 @@
                       <td>{{ ++$n }}</td>
                       <td>{{ $i->nama_lengkap }} <br> {{ $i->jenis_kelamin }}</td>
                       <td>{{ $i->tempat_lahir }} {{ $i->tanggal_lahir->format('j F Y') }}</td>
-                      <td>{{ $i->nomor_kependudukan }}</td>
-                      <td>{{ $i->nomor_telepon }}</td>
+                      <td>{{ $i->nomor_kependudukan_original }}</td>
+                      <td>{{ $i->nomor_telepon_original }}</td>
                       <td>{{ $i->pekerjaan }}</td>
                       <td>{{ $i->pendidikan }}</td>
                       <td>{{ $i->agama }}</td>

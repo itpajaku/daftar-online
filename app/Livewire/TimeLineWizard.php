@@ -124,6 +124,12 @@ class TimeLineWizard extends Component
                         ->class('btn btn-secondary mt-3')
                         ->child(Element::withTag('i')->class('ti ti-home fs-5 ms-2'))
                         ->attribute('wire:click', 'redirectToSearch'),
+                    A::create()
+                        ->href('/permohonan-akun')
+                        ->attribute('wire:navigate')
+                        ->text('Daftar Permohonan')
+                        ->class('btn btn-primary mt-3 ms-2')
+                        ->child(Element::withTag('i')->class('bi bi-list-task fs-5 ms-2')),
                 ]),
             ]),
         ])->toHtml();

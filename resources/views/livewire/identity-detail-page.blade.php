@@ -44,7 +44,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nama Lengkap :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->nama_lengkap }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->nama_lengkap }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -53,7 +53,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Jenis kelamin :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->jenis_kelamin }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->jenis_kelamin }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -65,7 +65,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nomor KTP :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->nomor_kependudukan_original }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->nomor_kependudukan_original }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -74,8 +74,8 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Date of Birth :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->tempat_lahir }}, {{ $identity->tanggal_lahir->format('j F Y') }}
-                        ({{ $identity->tanggal_lahir->format('d/m/Y') }})</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->tempat_lahir }}, {{ $identity->tanggal_lahir->format('j F Y') }}
+                        ({{ $identity->tanggal_lahir->format('d/m/Y') }})</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -87,7 +87,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Pekerjaan :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->pekerjaan }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->pekerjaan }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -96,7 +96,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Pendidikan :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->pendidikan }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->pendidikan }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -108,7 +108,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Agama :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->agama }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->agama }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -117,7 +117,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Alamat :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->alamat }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->alamat }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -129,7 +129,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nomor WA :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->nomor_telepon_original }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->nomor_telepon_original }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -138,7 +138,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Email :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->email }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->email }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -149,7 +149,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Status Nikah :</label>
                     <div class="col-md-8">
-                      <p>{{ $identity->status_perkawinan }}</p>
+                      <x-copy-text><p class="mb-0">{{ $identity->status_perkawinan }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -180,9 +180,9 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nama Bank :</label>
                     <div class="col-md-8">
-                      <p>
+                      <x-copy-text><p class="mb-0">
                         {{ $identity->bank_account ? $identity->bank_account->nama_bank : '-' }}
-                      </p>
+                      </p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -190,9 +190,9 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nomor Rekening :</label>
                     <div class="col-md-8">
-                      <p>
+                      <x-copy-text><p class="mb-0">
                         {{ $identity->bank_account ? $identity->bank_account->nomor_rekening : '-' }}
-                      </p>
+                      </p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -204,9 +204,9 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nama Akun :</label>
                     <div class="col-md-8">
-                      <p>
+                      <x-copy-text><p class="mb-0">
                         {{ $identity->bank_account ? $identity->bank_account->nama_akun : '-' }}
-                      </p>
+                      </p></x-copy-text>
                     </div>
                   </div>
                 </div>
@@ -215,7 +215,7 @@
                     <label class="form-label text-end col-md-4">File KTP :</label>
                     <div class="col-md-8">
                       <button type="button" wire:click="download_ktp" class="btn btn-success btn-sm"
-                        @if (!($identity->bank_account && $identity->bank_account->ktp)) disabled @endif>
+                        @if (!($identity->bank_account && $identity->bank_account->file_ktp)) disabled @endif>
                         <i class="bi bi-download"></i>
                         Download KTP
                       </button>
