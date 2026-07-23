@@ -49,6 +49,7 @@
                     <th>Telepon</th>
                     <th>Pekerjaan</th>
                     <th>Pendidikan</th>
+                    <th>Status</th>
                     <th>Agama</th>
                     <th>Alamat</th>
                     <th width="150px">Aksi</th>
@@ -64,6 +65,13 @@
                       <td>{{ $i->nomor_telepon_original }}</td>
                       <td>{{ $i->pekerjaan }}</td>
                       <td>{{ $i->pendidikan }}</td>
+                      <td>
+                        @if ($i->ecourt_account)
+                          <span class="badge bg-success">Sudah Verifikasi</span>
+                        @else
+                          <span class="badge bg-warning text-dark">Belum Verifikasi</span>
+                        @endif
+                      </td>
                       <td>{{ $i->agama }}</td>
                       <td>{{ Str::substr($i->alamat, 0, 20) }} ...</td>
                       <td class="text-center">

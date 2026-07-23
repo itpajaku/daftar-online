@@ -213,11 +213,16 @@
                 <div class="col-md-6">
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">File KTP :</label>
-                    <div class="col-md-8">
+                    <div class="col-md-8 d-flex gap-2">
                       <button type="button" wire:click="download_ktp" class="btn btn-success btn-sm"
                         @if (!($identity->bank_account && $identity->bank_account->file_ktp)) disabled @endif>
                         <i class="bi bi-download"></i>
                         Download KTP
+                      </button>
+                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewKtpModal"
+                        @if (!($identity->bank_account && $identity->bank_account->file_ktp)) disabled @endif>
+                        <i class="bi bi-eye"></i>
+                        Lihat
                       </button>
                     </div>
                   </div>
@@ -264,6 +269,21 @@
         </div>
         <div class="card-body">
           <livewire:form-e-court-account identity_id="{{ $identity->hashed_id }}" />
+        </div>
+  <!-- Modal View KTP -->
+  <div class="modal fade" id="viewKtpModal" tabindex="-1" aria-labelledby="viewKtpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewKtpModalLabel">Lihat Dokumen KTP</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          @if ($identity->bank_account && $identity->bank_account->file_ktp)
+            <iframe src="{{ asset('storage/' . $identity->bank_account->file_ktp) }}" width="100%" height="600px" style="border: none; display: block;"></iframe>
+          @else
+            <div class="p-4 text-center text-muted">File KTP tidak tersedia.</div>
+          @endif
         </div>
       </div>
     </div>

@@ -135,17 +135,19 @@ class IdentityStepWizard extends Component
         $hashed_nomor_telepon = hash_hmac('sha256', $this->nomor_telepon, config('app.key'));
 
         try {
-            if (!$this->identity_id) {
-                $exists = SensitiveIdentityKey::where(function ($q) use ($hashed_nik, $hashed_nomor_telepon) {
-                    $q->where('hash_nik', $hashed_nik)
-                        ->orWhere('hash_nomor_telepon', $hashed_nomor_telepon);
-                })->whereHas('identity', function ($q) {
-                    $q->whereNull('deleted_at');
-                })->exists();
+            $existsQuery = SensitiveIdentityKey::where(function ($q) use ($hashed_nik, $hashed_nomor_telepon) {
+                $q->where('hash_nik', $hashed_nik)
+                    ->orWhere('hash_nomor_telepon', $hashed_nomor_telepon);
+            })->whereHas('identity', function ($q) {
+                $q->whereNull('deleted_at');
+            });
 
-                if ($exists) {
-                    throw new \Exception("Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar", 1);
-                }
+            if ($this->identity_id) {
+                $existsQuery->where('identities_id', '!=', $hashId->decodeFirst($this->identity_id));
+            }
+
+            if ($existsQuery->exists()) {
+                throw new \Exception("Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar", 1);
             }
 
             DB::beginTransaction();

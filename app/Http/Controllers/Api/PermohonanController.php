@@ -146,4 +146,86 @@ class PermohonanController extends Controller
             ], 500);
         }
     }
+
+    public function status($identity_id, HashId $hashId)
+    {
+        $decoded_id = $hashId->decodeFirst($identity_id);
+        if (!$decoded_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ID Identitas tidak valid.'
+            ], 404);
+        }
+
+        $identity = Identity::with('ecourt_account')->find($decoded_id);
+        if (!$identity) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Identitas tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($identity->ecourt_account) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Akun E-Court sudah dibuat oleh admin.',
+                'data' => [
+                    'username' => $identity->ecourt_account->username,
+                    'password' => $identity->ecourt_account->password,
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'pending',
+            'message' => 'Menunggu verifikasi admin.',
+            'data' => null
+        ]);
+    }
+
+    public function show($identity_id, HashId $hashId)
+    {
+        $decoded_id = $hashId->decodeFirst($identity_id);
+        if (!$decoded_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ID Identitas tidak valid.'
+            ], 404);
+        }
+
+        $identity = Identity::with('bank_account')->find($decoded_id);
+        if (!$identity) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Identitas tidak ditemukan.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data identitas berhasil diambil.',
+            'data' => [
+                'id' => $identity_id,
+                'nama_lengkap' => $identity->nama_lengkap,
+                'jenis_kelamin' => $identity->jenis_kelamin,
+                'tanggal_lahir' => $identity->tanggal_lahir ? $identity->tanggal_lahir->format('Y-m-d') : null,
+                'tempat_lahir' => $identity->tempat_lahir,
+                'nomor_kependudukan' => $identity->nomor_kependudukan_original,
+                'nomor_telepon' => $identity->nomor_telepon_original,
+                'email' => $identity->email,
+                'pekerjaan' => $identity->pekerjaan,
+                'pendidikan' => $identity->pendidikan,
+                'status_perkawinan' => $identity->status_perkawinan,
+                'agama' => $identity->agama,
+                'alamat' => $identity->alamat,
+                'bank_account' => $identity->bank_account ? [
+                    'id' => $hashId->encode($identity->bank_account->id),
+                    'nama_bank' => $identity->bank_account->nama_bank,
+                    'nomor_rekening' => Crypt::decryptString($identity->bank_account->nomor_rekening),
+                    'nama_akun' => $identity->bank_account->nama_akun,
+                    'file_ktp_url' => $identity->bank_account->file_ktp ? asset('storage/' . $identity->bank_account->file_ktp) : null,
+                ] : null
+            ]
+        ]);
+    }
 }

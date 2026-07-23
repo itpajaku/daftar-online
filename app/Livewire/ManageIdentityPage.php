@@ -18,7 +18,7 @@ class ManageIdentityPage extends Component
     public function render(HashId $hash)
     {
         return view('livewire.manage-identity-page', [
-            'identities' => Identity::paginate(20),
+            'identities' => Identity::with('ecourt_account')->paginate(20),
             'hash' => $hash
         ]);
     }

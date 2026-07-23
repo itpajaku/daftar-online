@@ -7,6 +7,30 @@ servers:
   - url: /api
     description: Base URL untuk semua endpoint API permohonan.
 paths:
+  /:
+    get:
+      summary: Health Check
+      description: Endpoint untuk mengecek status kesehatan API.
+      operationId: getHealthStatus
+      responses:
+        '200':
+          description: API berjalan normal.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "API is running"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2026-07-20T10:00:00Z"
+  
   /permohonan/step-1:
     post:
       summary: Step 1 - Pendaftaran Identitas
@@ -73,7 +97,58 @@ paths:
                 $ref: '#/components/schemas/ValidationError'
         '500':
           description: Terjadi kesalahan server.
-
+  
+  /permohonan/status/{identity_id}:
+    get:
+      summary: Cek Status E-Court Account
+      description: Menampilkan status akun e-court (beserta username dan password) yang sudah diverifikasi atau dibuat oleh admin.
+      operationId: getEcourtStatus
+      parameters:
+        - name: identity_id
+          in: path
+          required: true
+          description: Hashed ID dari identitas.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status akun berhasil diambil. Jika data ada, maka akan mengembalikan username dan password e-court. Jika masih dalam proses, data bernilai null dan status 'pending'.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: ID Identitas tidak valid atau tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+  
+  /permohonan/identity/{identity_id}:
+    get:
+      summary: Detail Identitas
+      description: Mengambil data identitas beserta data rekening bank dan KTP jika ada, berdasarkan `identity_id`. Data Nomor KTP dan Nomor Telepon akan dikembalikan dalam format asli (tidak terenkripsi).
+      operationId: getIdentity
+      parameters:
+        - name: identity_id
+          in: path
+          required: true
+          description: Hashed ID dari identitas.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Data identitas berhasil diambil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityDetailResponse'
+        '404':
+          description: ID Identitas tidak valid atau tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
 components:
   schemas:
     IdentityRequest:
@@ -188,6 +263,80 @@ components:
             bank_account_id:
               type: string
               example: "def456uvw"
+
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Akun E-Court sudah dibuat oleh admin."
+        data:
+          type: object
+          nullable: true
+          properties:
+            username:
+              type: string
+              example: "ecourt_user_123"
+            password:
+              type: string
+              example: "password123"
+
+    IdentityDetailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Data identitas berhasil diambil."
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "abc123xyz"
+            nama_lengkap:
+              type: string
+            jenis_kelamin:
+              type: string
+            tanggal_lahir:
+              type: string
+            tempat_lahir:
+              type: string
+            nomor_kependudukan:
+              type: string
+            nomor_telepon:
+              type: string
+            email:
+              type: string
+            pekerjaan:
+              type: string
+            pendidikan:
+              type: string
+            status_perkawinan:
+              type: string
+            agama:
+              type: string
+            alamat:
+              type: string
+            bank_account:
+              type: object
+              nullable: true
+              properties:
+                id:
+                  type: string
+                nama_bank:
+                  type: string
+                nomor_rekening:
+                  type: string
+                nama_akun:
+                  type: string
+                file_ktp_url:
+                  type: string
 
     ValidationError:
       type: object
