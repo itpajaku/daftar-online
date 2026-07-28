@@ -221,7 +221,7 @@ class PermohonanController extends Controller
                 'bank_account' => $identity->bank_account ? [
                     'id' => $hashId->encode($identity->bank_account->id),
                     'nama_bank' => $identity->bank_account->nama_bank,
-                    'nomor_rekening' => Crypt::decryptString($identity->bank_account->nomor_rekening),
+                    'nomor_rekening' => $identity->bank_account->nomor_rekening,
                     'nama_akun' => $identity->bank_account->nama_akun,
                     'file_ktp_url' => $identity->bank_account->file_ktp ? asset('storage/' . $identity->bank_account->file_ktp) : null,
                 ] : null
