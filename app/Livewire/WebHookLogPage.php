@@ -5,19 +5,20 @@ namespace App\Livewire;
 use App\Models\WebHookLog;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout("components.layouts.app")]
 class WebHookLogPage extends Component
 {
-    public $logs;
+    use WithPagination;
 
-    public function mount()
-    {
-        $this->logs = WebHookLog::latest()->get();
-    }
+    protected $paginationTheme = 'bootstrap';
 
     public function render()
     {
-        return view("livewire.web-hook-logs");
+        $logs = WebHookLog::latest()->paginate(10);
+        return view("livewire.web-hook-logs", [
+            'logs' => $logs
+        ]);
     }
 }

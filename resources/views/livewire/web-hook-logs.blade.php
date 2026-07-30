@@ -26,7 +26,10 @@
           <td>{{ $log->webhook?->name ?? '-' }}</td>
           <td>{{ class_basename($log->event) }}</td>
           <td>
-            <pre class="mb-0">{{ json_encode($log->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+            <details>
+              <summary>Lihat Payload</summary>
+              <pre class="mb-0">{{ json_encode($log->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+            </details>
           </td>
           <td>
             @if ($log->success)
@@ -38,7 +41,8 @@
           <td>{{ $log->status_code ?? '-' }}</td>
           <td>
             <details>
-              <pre class="mb-0"> {{ print_r(json_decode($log->response, true)) }}</pre>
+              <summary>Lihat Response</summary>
+              <pre class="mb-0"> {{ print_r(json_decode($log->response, true), true) ?: $log->response }}</pre>
             </details>
           </td>
           <td>
@@ -56,4 +60,8 @@
       @endforelse
     </tbody>
   </table>
+
+  <div class="mt-3">
+    {{ $logs->links() }}
+  </div>
 </div>
