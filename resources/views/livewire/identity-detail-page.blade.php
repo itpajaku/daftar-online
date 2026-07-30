@@ -35,6 +35,41 @@
         <form class="form-horizontal">
           <div class="form-body">
             <div class="card-body">
+              <h5 class="card-title mb-0">Informasi Permohonan</h5>
+            </div>
+            <hr class="m-0" />
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="form-label text-end col-md-4">Waktu Pengajuan :</label>
+                    <div class="col-md-8">
+                      <x-copy-text><p class="mb-0">{{ $identity->created_at ? $identity->created_at->translatedFormat('d F Y H:i:s') . ' (' . $identity->created_at->diffForHumans() . ')' : '-' }}</p></x-copy-text>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="form-label text-end col-md-4">Hubungi Pemohon :</label>
+                    <div class="col-md-8">
+                      @php
+                        $waNumber = preg_replace('/[^0-9]/', '', $identity->nomor_telepon_original);
+                        if(str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
+                      @endphp
+                      @if($waNumber)
+                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="btn btn-success btn-sm">
+                          <i class="bi bi-whatsapp me-1"></i> Chat WhatsApp
+                        </a>
+                      @else
+                        -
+                      @endif
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="m-0" />
+            <div class="card-body">
               <h5 class="card-title mb-0">Person Info</h5>
             </div>
             <hr class="m-0" />
@@ -74,8 +109,12 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Date of Birth :</label>
                     <div class="col-md-8">
-                      <x-copy-text><p class="mb-0">{{ $identity->tempat_lahir }}, {{ $identity->tanggal_lahir->format('j F Y') }}
-                        ({{ $identity->tanggal_lahir->format('d/m/Y') }})</p></x-copy-text>
+                      <x-copy-text><p class="mb-0">{{ $identity->tempat_lahir }}</p></x-copy-text>
+                      <ul class="mt-1 mb-0 ps-3">
+                        <li class="mb-1"><x-copy-text><p class="mb-0">{{ $identity->tanggal_lahir->translatedFormat('d F Y') }}</p></x-copy-text></li>
+                        <li class="mb-1"><x-copy-text><p class="mb-0">{{ $identity->tanggal_lahir->format('d/m/Y') }}</p></x-copy-text></li>
+                        <li class="mb-1"><x-copy-text><p class="mb-0">{{ $identity->tanggal_lahir->format('Y-m-d') }}</p></x-copy-text></li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -129,7 +168,7 @@
                   <div class="form-group row">
                     <label class="form-label text-end col-md-4">Nomor WA :</label>
                     <div class="col-md-8">
-                      <x-copy-text><p class="mb-0">{{ $identity->nomor_telepon_original }}</p></x-copy-text>
+                      <x-copy-text><p class="mb-0">{{ preg_replace('/^0/', '62', $identity->nomor_telepon_original) }}</p></x-copy-text>
                     </div>
                   </div>
                 </div>
