@@ -31,3 +31,5 @@ frankenphp-worker.php
 *.bat
 *.sh
 *.shell
+database.sqlite
+*.sqlite
