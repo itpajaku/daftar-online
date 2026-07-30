@@ -14,154 +14,95 @@
           <i class="bi bi-download me-1"></i> Export
         </button>
       </div>
-      <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <i class="bi bi-calendar3 me-1"></i> This week
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item bi bi-calendar-day" href="#"> Today</a></li>
-          <li><a class="dropdown-item bi bi-calendar-week" href="#"> This week</a></li>
-          <li><a class="dropdown-item bi bi-calendar-month" href="#"> This month</a></li>
-          <li><a class="dropdown-item bi bi-calendar3" href="#"> This year</a></li>
-        </ul>
+      <div class="d-flex gap-2">
+        <select class="form-select form-select-sm" wire:model.live="selectedMonth">
+          @for ($m = 1; $m <= 12; $m++)
+            <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
+          @endfor
+        </select>
+        <select class="form-select form-select-sm" wire:model.live="selectedYear">
+          @for ($y = date('Y') - 5; $y <= date('Y'); $y++)
+            <option value="{{ $y }}">{{ $y }}</option>
+          @endfor
+        </select>
       </div>
     </div>
   </div>
 
-  <!-- Stats Cards -->
-  {{-- <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h6 class="card-title mb-2">Total Users</h6>
-                            <h2 class="mb-1 fw-bold">2.6K</h2>
-                            <p class="mb-0 text-success small">
-                                <i class="bi bi-arrow-up me-1"></i>12.5% increase
-                            </p>
-                        </div>
-                        <div class="p-2 bg-primary bg-opacity-10 rounded-3">
-                            <i class="bi bi-people fs-5 text-primary"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h6 class="card-title mb-2">Revenue</h6>
-                            <h2 class="mb-1 fw-bold">$32.5K</h2>
-                            <p class="mb-0 text-danger small">
-                                <i class="bi bi-arrow-down me-1"></i>2.1% decrease
-                            </p>
-                        </div>
-                        <div class="p-2 bg-success bg-opacity-10 rounded-3">
-                            <i class="bi bi-currency-dollar fs-5 text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h6 class="card-title mb-2">Orders</h6>
-                            <h2 class="mb-1 fw-bold">1.2K</h2>
-                            <p class="mb-0 text-success small">
-                                <i class="bi bi-arrow-up me-1"></i>5.7% increase
-                            </p>
-                        </div>
-                        <div class="p-2 bg-warning bg-opacity-10 rounded-3">
-                            <i class="bi bi-cart fs-5 text-warning"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h6 class="card-title mb-2">Visitors</h6>
-                            <h2 class="mb-1 fw-bold">4.8K</h2>
-                            <p class="mb-0 text-success small">
-                                <i class="bi bi-arrow-up me-1"></i>15.2% increase
-                            </p>
-                        </div>
-                        <div class="p-2 bg-info bg-opacity-10 rounded-3">
-                            <i class="bi bi-graph-up fs-5 text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Chart Container -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-0">
+      <h5 class="mb-0">Statistik Permohonan Harian</h5>
     </div>
+    <div class="card-body">
+      <div id="chart-permohonan" style="min-height: 350px;"></div>
+    </div>
+  </div>
 
-    <div class="row g-3">
-        <!-- Recent Activity -->
-        <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Recent Activity</h5>
-                        <button class="btn btn-sm">View All</button>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        @foreach (['success', 'danger', 'warning', 'info', 'primary'] as $color)
-                            <div class="list-group-item border-0">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="p-2 bg-{{ $color }} bg-opacity-10 rounded-3">
-                                            <i class="bi bi-bell fs-5 text-{{ $color }}"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <h6 class="mb-0">New order placed</h6>
-                                            <small class="text-muted">2 hours ago</small>
-                                        </div>
-                                        <p class="text-muted small mb-0">John Doe placed a new order worth $150</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  
+  @script
+  <script>
+    const chartData = @json($this->chartData);
+    
+    const options = {
+      series: [{
+        name: 'Permohonan',
+        data: chartData.series
+      }],
+      chart: {
+        type: 'area',
+        height: 350,
+        toolbar: { show: false },
+        zoom: { enabled: false }
+      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 2 },
+      xaxis: {
+        categories: chartData.labels,
+        title: { text: 'Tanggal' }
+      },
+      yaxis: {
+        title: { text: 'Jumlah' },
+        min: 0,
+        forceNiceScale: true,
+        labels: {
+            formatter: function(val) { return Math.floor(val) }
+        }
+      },
+      tooltip: {
+        y: { formatter: function (val) { return val + " permohonan" } }
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.7,
+          opacityTo: 0.1,
+          stops: [0, 90, 100]
+        }
+      },
+      colors: ['#0d6efd']
+    };
 
-        <!-- Quick Actions -->
-        <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary d-flex align-items-center justify-content-between">
-                            <span><i class="bi bi-plus-circle me-2"></i>New Project</span>
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                        <button class="btn btn-outline-primary d-flex align-items-center justify-content-between">
-                            <span><i class="bi bi-people me-2"></i>Invite Team</span>
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                        <button class="btn btn-outline-primary d-flex align-items-center justify-content-between">
-                            <span><i class="bi bi-gear me-2"></i>Settings</span>
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
+    let chart = new ApexCharts(document.querySelector("#chart-permohonan"), options);
+    chart.render();
+
+    $wire.on('update-chart', (event) => {
+        // Livewire v3 passes arguments as an array
+        const eventData = Array.isArray(event) ? event[0] : event;
+        const newData = eventData.data || eventData;
+        
+        chart.updateSeries([{
+            data: newData.series
+        }]);
+        chart.updateOptions({
+            xaxis: {
+                categories: newData.labels
+            }
+        });
+    });
+  </script>
+  @endscript
 </div>
