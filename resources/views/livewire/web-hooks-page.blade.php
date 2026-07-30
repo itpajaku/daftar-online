@@ -37,6 +37,22 @@
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">API Key (Opsional)</label>
+                  <input type="text" class="form-control @error('api_key') is-invalid @enderror" wire:model.defer="api_key">
+                  @error('api_key')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Header Auth Name</label>
+                  <input type="text" class="form-control @error('header_auth_name') is-invalid @enderror" wire:model.defer="header_auth_name" placeholder="Authorization">
+                  @error('header_auth_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+              </div>
               <div class="mb-3">
                 <label class="form-label">Event</label>
                 <select class="form-select @error('event') is-invalid @enderror" wire:model.defer="event">
@@ -81,7 +97,36 @@
       </div>
     </div>
   @endif
-  <div wire:loading wire:target="testWebhook" class="alert alert-warning mt-3">
+  <!-- Test Modal -->
+  @if ($showTestModal)
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.3);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Test Webhook Variabel</h5>
+            <button type="button" class="btn-close" wire:click="$set('showTestModal', false)"></button>
+          </div>
+          <form wire:submit.prevent="executeTestWebhook">
+            <div class="modal-body">
+              <p class="text-muted small">Isi variabel berikut untuk dikirim pada saat pengujian:</p>
+              @foreach ($testVariables as $var)
+                <div class="mb-3">
+                  <label class="form-label">{{ $var }}</label>
+                  <input type="text" class="form-control" wire:model.defer="testVariableValues.{{ $var }}" required>
+                </div>
+              @endforeach
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" wire:click="$set('showTestModal', false)">Batal</button>
+              <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">Run Test</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  @endif
+
+  <div wire:loading wire:target="testWebhook, executeTestWebhook" class="alert alert-warning mt-3">
     <strong>Webhook sedang diuji...</strong>
     <span class="spinner-border spinner-border-sm ms-2"></span>
   </div>
@@ -96,6 +141,8 @@
       <tr>
         <th>Nama</th>
         <th>URL</th>
+        <th>API Key</th>
+        <th>Header Auth Name</th>
         <th>Event</th>
         <th>Body</th>
         <th>Status</th>
@@ -107,8 +154,15 @@
         <tr>
           <td>{{ $webhook->name }}</td>
           <td>{{ $webhook->url }}</td>
+          <td>{{ $webhook->api_key ?: '-' }}</td>
+          <td>{{ $webhook->header_auth_name ?: '-' }}</td>
           <td>{{ $webhook->event }}</td>
-          <td><code>{{ $webhook->body }}</code></td>
+          <td>
+            <details>
+              <summary>Lihat Body</summary>
+              <code>{{ $webhook->body }}</code>
+            </details>
+          </td>
           <td>
             @if ($webhook->is_active)
               <span class="badge bg-success">Aktif</span>
@@ -133,7 +187,7 @@
         </tr>
       @empty
         <tr>
-          <td colspan="6" class="text-center">Belum ada webhook</td>
+          <td colspan="8" class="text-center">Belum ada webhook</td>
         </tr>
       @endforelse
     </tbody>

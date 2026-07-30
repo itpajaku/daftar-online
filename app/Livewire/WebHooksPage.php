@@ -12,6 +12,12 @@ class WebHooksPage extends Component
   public $testResult;
   public $showModal = false;
   public $name, $url, $event, $type = 'POST', $body, $is_active = true;
+  public $api_key, $header_auth_name = 'Authorization';
+  
+  public $showTestModal = false;
+  public $testWebhookId;
+  public $testVariables = [];
+  public $testVariableValues = [];
   public $eventOptions = [];
 
   protected function rules()
@@ -21,6 +27,8 @@ class WebHooksPage extends Component
       'url' => 'required|url',
       'event' => 'required|string|max:255',
       'type' => 'required|in:GET,POST',
+      'api_key' => 'nullable|string|max:255',
+      'header_auth_name' => 'nullable|string|max:255',
       'body' => ['required', 'string'],
       'is_active' => 'boolean',
     ];
@@ -30,7 +38,7 @@ class WebHooksPage extends Component
   {
     $this->webhooks = WebHook::all();
     $this->eventOptions = [
-      'App\\Events\\EcourtAccountCreateEvent',
+      'App\\Events\\ECourtAccountCreatedEvent',
       'App\\Events\\EcourtAccountUpdateEvent',
       'App\\Events\\EcourtAccountDeleteEvent',
       'App\\Events\\IdentityCreateEvent',
@@ -41,8 +49,9 @@ class WebHooksPage extends Component
 
   public function showAddModal()
   {
-    $this->reset(['name', 'url', 'event', 'type', 'body', 'is_active']);
+    $this->reset(['name', 'url', 'event', 'type', 'api_key', 'header_auth_name', 'body', 'is_active']);
     $this->type = 'POST';
+    $this->header_auth_name = 'Authorization';
     $this->is_active = true;
     $this->showModal = true;
   }
@@ -68,6 +77,8 @@ class WebHooksPage extends Component
     $this->url = $webhook->url;
     $this->event = $webhook->event;
     $this->type = $webhook->type;
+    $this->api_key = $webhook->api_key;
+    $this->header_auth_name = $webhook->header_auth_name;
     $this->body = $webhook->body;
     $this->is_active = $webhook->is_active;
     $this->showModal = true;
@@ -99,20 +110,54 @@ class WebHooksPage extends Component
 
   public function testWebhook($id)
   {
-    $this->testing = true;
     $webhook = WebHook::findOrFail($id);
+    $this->testWebhookId = $id;
+
+    preg_match_all('/{([A-Za-z_0-9]+)}/', $webhook->body, $matches);
+    
+    if (!empty($matches[1])) {
+        $this->testVariables = array_unique($matches[1]);
+        $this->testVariableValues = [];
+        foreach ($this->testVariables as $var) {
+            $this->testVariableValues[$var] = '';
+        }
+        $this->showTestModal = true;
+    } else {
+        $this->executeTestWebhook();
+    }
+  }
+
+  public function executeTestWebhook()
+  {
+    $this->testing = true;
+    $webhook = WebHook::findOrFail($this->testWebhookId);
+    
+    $body = $webhook->body;
+    foreach ($this->testVariableValues as $key => $value) {
+        $body = str_replace('{' . $key . '}', $value, $body);
+    }
+    
+    $bodyArray = json_decode($body, TRUE);
 
     try {
+      $request = \Illuminate\Support\Facades\Http::withHeaders([]);
+      if (!empty($webhook->api_key)) {
+          $headerName = $webhook->header_auth_name ?: 'Authorization';
+          $request = $request->withHeaders([
+              $headerName => $webhook->api_key
+          ]);
+      }
+
       if ($webhook->type === 'POST') {
-        $response = \Illuminate\Support\Facades\Http::post($webhook->url, json_decode($webhook->body, TRUE));
+        $response = $request->post($webhook->url, $bodyArray);
       } else {
-        $response = \Illuminate\Support\Facades\Http::get($webhook->url, json_decode($webhook->body, TRUE));
+        $response = $request->get($webhook->url, $bodyArray);
       }
 
       WebHookLog::create([
         'web_hook_id' => $webhook->id,
         'event' => $webhook->event,
-        'payload' => json_decode($webhook->body, TRUE),
+        'payload' => $bodyArray,
         'status_code' => $response->status(),
         'response' => $response->body(),
         'success' => $response->successful(),
@@ -124,7 +169,7 @@ class WebHooksPage extends Component
       WebHookLog::create([
         'web_hook_id' => $webhook->id,
         'event' => $webhook->event,
-        'payload' => json_decode($webhook->body, TRUE),
+        'payload' => $bodyArray,
         'success' => false,
         'error_message' => $th->getMessage(),
       ]);
@@ -133,6 +178,7 @@ class WebHooksPage extends Component
       session()->flash('error', 'Webhook test failed');
     } finally {
       $this->testing = false;
+      $this->showTestModal = false;
     }
   }
 }

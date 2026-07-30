@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Setting;
+use App\Models\WebHook;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -45,8 +46,22 @@ class DatabaseSeeder extends Seeder
                 ],
             ]);
         }
-        // $this->call([
-        //     IdentitySeeder::class,
-        // ]);
+
+        WebHook::firstOrCreate(
+            ['event' => 'App\Events\ECourtAccountCreatedEvent'],
+            [
+                'name' => 'Notifikasi Akun Ecourt WhatsApp',
+                'url' => 'http://192.168.0.202:3030/api/sendText',
+                'type' => 'POST',
+                'body' => json_encode([
+                    "chatId" => "{NO_WA_USER}@c.us",
+                    "text" => "User dan password akun Ecourt anda.\nuser : {USER_ECOURT}\npass : {PASS_ECOURT}\n_Terima Kasih telah mengajukan permohonan akun ecourt melalui pelayana PA Jakarta Utara. *Notifikasi Otomatis* Mohon untuk tidak membalas atau menelefon ke nomor ini_!",
+                    "session" => "default"
+                ]),
+                'api_key' => '',
+                'header_auth_name' => 'Authorization',
+                'is_active' => true,
+            ]
+        );
     }
 }

@@ -11,6 +11,8 @@ class WebHook extends Model
         'url',
         'event',
         'type',
+        'api_key',
+        'header_auth_name',
         'body',
         'is_active',
     ];

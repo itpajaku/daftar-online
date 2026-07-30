@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
-use App\Events\EcourtAccountCreateEvent;
+use App\Events\ECourtAccountCreatedEvent;
 use App\Events\EcourtAccountUpdateEvent;
 use App\Events\EcourtAccountDeleteEvent;
 use App\Listeners\WebHookListener;
@@ -16,7 +16,7 @@ use App\Listeners\IdentityWebHookListener;
 class EventServiceProvider extends ServiceProvider
 {
   protected $listen = [
-    EcourtAccountCreateEvent::class => [
+    ECourtAccountCreatedEvent::class => [
       WebHookListener::class,
     ],
     EcourtAccountUpdateEvent::class => [
