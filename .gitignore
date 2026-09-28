@@ -33,3 +33,4 @@ frankenphp-worker.php
 *.shell
 database.sqlite
 *.sqlite
+.claude

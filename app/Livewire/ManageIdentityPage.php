@@ -12,14 +12,14 @@ use Livewire\WithPagination;
 class ManageIdentityPage extends Component
 {
     use WithPagination;
-    
+
     protected $paginationTheme = 'bootstrap';
 
     public function render(HashId $hash)
     {
         return view('livewire.manage-identity-page', [
-            'identities' => Identity::with('ecourt_account')->paginate(20),
-            'hash' => $hash
+            'identities' => Identity::with('ecourt_account')->latest()->paginate(20),
+            'hash' => $hash,
         ]);
     }
 }
