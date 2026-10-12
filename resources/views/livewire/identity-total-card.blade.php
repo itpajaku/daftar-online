@@ -47,7 +47,22 @@
               </p> --}}
             </div>
             <div class="p-2 bg-warning bg-opacity-10 rounded-3">
-              <i class="bi bi-cart fs-5 text-warning"></i>
+              <i class="bi bi-hourglass-split fs-5 text-warning"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <h6 class="card-title mb-2">Ditolak</h6>
+              <h2 class="mb-1 fw-bold text-danger">{{ $ditolak }}</h2>
+            </div>
+            <div class="p-2 bg-danger bg-opacity-10 rounded-3">
+              <i class="bi bi-x-circle fs-5 text-danger"></i>
             </div>
           </div>
         </div>

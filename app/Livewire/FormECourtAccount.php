@@ -4,10 +4,10 @@ namespace App\Livewire;
 
 use App\Livewire\Forms\ECourtAccountForm;
 use App\Models\EcourtAccount;
+use App\Models\Identity;
 use App\Service\HashId;
 use App\Traits\AlertElement;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class FormECourtAccount extends Component
@@ -15,12 +15,13 @@ class FormECourtAccount extends Component
     use AlertElement;
 
     public ECourtAccountForm $ecourt_account;
+
     public $identity_id;
 
-    public function mount($identity_id = null, HashId $hash)
+    public function mount($identity_id, HashId $hash)
     {
         $originalId = $hash->decodeFirst($identity_id);
-        $ecourtAccount =  EcourtAccount::firstOrNew(['identity_id' => $originalId]);
+        $ecourtAccount = EcourtAccount::firstOrNew(['identity_id' => $originalId]);
         $this->ecourt_account->username = $ecourtAccount->username;
         $this->ecourt_account->password = $ecourtAccount->password;
         $this->identity_id = $originalId;
@@ -38,6 +39,12 @@ class FormECourtAccount extends Component
             DB::beginTransaction();
 
             EcourtAccount::updateOrCreate(['identity_id' => $this->identity_id], $validated);
+
+            Identity::where('id', $this->identity_id)->update([
+                'status' => 'verified',
+                'alasan_penolakan' => null,
+                'rejected_at' => null,
+            ]);
 
             session()->flash('alert_success', $this->successAlertElement('User dan Password berhasil disimpan'));
             DB::commit();

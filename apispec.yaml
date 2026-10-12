@@ -112,7 +112,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Status akun berhasil diambil. Jika data ada, maka akan mengembalikan username dan password e-court. Jika masih dalam proses, data bernilai null dan status 'pending'.
+          description: Status akun berhasil diambil. Jika akun sudah dibuat mengembalikan status 'success', jika masih diproses mengembalikan status 'pending', dan jika ditolak admin mengembalikan status 'rejected' beserta alasan penolakan.
           content:
             application/json:
               schema:
@@ -270,6 +270,7 @@ components:
         status:
           type: string
           example: "success"
+          enum: ["success", "pending", "rejected"]
         message:
           type: string
           example: "Akun E-Court sudah dibuat oleh admin."
@@ -283,6 +284,12 @@ components:
             password:
               type: string
               example: "password123"
+            alasan_penolakan:
+              type: string
+              example: "Foto KTP buram dan tidak terbaca."
+            rejected_at:
+              type: string
+              format: date-time
 
     IdentityDetailResponse:
       type: object

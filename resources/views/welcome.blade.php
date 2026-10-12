@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="{{ app('settings')['theme'] }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="{{ app('settings')['theme'] ?? 'light' }}">
 
 <head>
   <meta charset="utf-8">
@@ -43,7 +43,7 @@
         <h1 class="display-5 fw-bold text-body-emphasis mb-3">Mulai Pendaftaran Secara Online</h1>
         <p class="lead mb-4">
           Disini anda akan dipandu secara online untuk memulai pendaftaran perkara di
-          <strong> {{ app('settings')['satker'] }}.</strong>
+          <strong> {{ app('settings')['satker'] ?? config('app.name') }}.</strong>
         </p>
         <div class="d-flex justify-content-center gap-2">
           <dotlottie-player src="https://lottie.host/5285ca0d-4adf-4d08-917b-ddf708574e91/uSH2hjrWEU.lottie"

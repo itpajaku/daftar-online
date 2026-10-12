@@ -26,6 +26,13 @@
     </div>
   </div>
 
+  @if (session()->has('alert_success'))
+    {!! session('alert_success') !!}
+  @endif
+  @if (session()->has('alert_error'))
+    {!! session('alert_error') !!}
+  @endif
+
   <div class="row">
     <div class="col-8">
       <div class="card">
@@ -299,6 +306,59 @@
       </div>
     </div>
     <div class="col-4">
+      <!-- Card Status Permohonan -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0 fw-semibold">Status Permohonan</h5>
+        </div>
+        <div class="card-body">
+          @if ($identity->isVerified())
+            <div class="alert alert-success d-flex align-items-center mb-0">
+              <i class="bi bi-check-circle-fill me-2 fs-4 text-success"></i>
+              <div>
+                <strong class="d-block">Sudah Diverifikasi</strong>
+                <span class="small">Akun E-Court telah berhasil diterbitkan.</span>
+              </div>
+            </div>
+          @elseif ($identity->isRejected())
+            <div class="alert alert-danger mb-2">
+              <div class="d-flex align-items-center mb-1">
+                <i class="bi bi-x-circle-fill me-2 fs-5 text-danger"></i>
+                <strong>Permohonan Ditolak</strong>
+              </div>
+              <div class="small mb-2">
+                <strong>Alasan:</strong>
+                <div class="p-2 bg-white rounded border border-danger-subtle mt-1 text-dark">
+                  {{ $identity->alasan_penolakan }}
+                </div>
+              </div>
+              @if ($identity->rejected_at)
+                <div class="text-muted small mb-2">
+                  <i class="bi bi-clock me-1"></i>{{ $identity->rejected_at->translatedFormat('d F Y H:i') }}
+                </div>
+              @endif
+              <button type="button" wire:click="cancelRejection" class="btn btn-outline-danger btn-sm w-100"
+                onclick="if(!confirm('Batalkan penolakan permohonan ini? Status akan kembali menjadi Belum Verifikasi.')){return false;}">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Batalkan Penolakan
+              </button>
+            </div>
+          @else
+            <div class="alert alert-warning mb-2">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-hourglass-split me-2 fs-5 text-warning"></i>
+                <div>
+                  <strong>Belum Diverifikasi</strong>
+                  <div class="small">Menunggu verifikasi berkas dan penerbitan akun E-Court.</div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
+              <i class="bi bi-x-circle me-1"></i> Tolak Permohonan
+            </button>
+          @endif
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header text-bg-primary">
           <h5 class="mb-0 text-white">Setting E-Court Account</h5>
@@ -309,6 +369,58 @@
         <div class="card-body">
           <livewire:form-e-court-account identity_id="{{ $identity->hashed_id }}" />
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tolak Permohonan -->
+  <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true" wire:ignore.self>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="rejectModalLabel"><i class="bi bi-x-circle me-2"></i>Tolak Permohonan Akun</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form wire:submit.prevent="rejectApplication">
+          <div class="modal-body">
+            <p class="text-muted small">
+              Tentukan alasan penolakan permohonan untuk <strong>{{ $identity->nama_lengkap }}</strong>. Alasan ini akan ditampilkan pada halaman Timeline pemohon agar pemohon dapat memperbaiki data yang kurang.
+            </p>
+
+            <div class="mb-3">
+              <label for="presetAlasan" class="form-label fw-semibold">Pilih Alasan Umum :</label>
+              <select id="presetAlasan" wire:model.live="selected_preset" class="form-select">
+                <option value="">-- Pilih template alasan penolakan --</option>
+                <option value="Foto / Scan KTP buram, terpotong, atau tidak terbaca dengan jelas.">Foto / Scan KTP buram, terpotong, atau tidak terbaca</option>
+                <option value="Alamat domisili / KTP tidak lengkap atau tidak jelas.">Alamat domisili / KTP tidak lengkap atau tidak jelas</option>
+                <option value="Nama pemilik buku rekening tidak sesuai dengan nama pada KTP pemohon.">Nama pemilik buku rekening tidak sesuai KTP</option>
+                <option value="Nomor KTP atau Nomor Telepon tidak valid.">Nomor KTP / Telepon tidak valid</option>
+                <option value="custom">Lainnya (tulis alasan kustom)</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="alasan_penolakan" class="form-label fw-semibold">Detail Alasan Penolakan <span class="text-danger">*</span> :</label>
+              <textarea id="alasan_penolakan" wire:model="alasan_penolakan" rows="4"
+                class="form-control @error('alasan_penolakan') is-invalid @enderror"
+                placeholder="Tuliskan alasan penolakan dan petunjuk perbaikan berkas..."></textarea>
+              @error('alasan_penolakan')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-danger" wire:loading.attr="disabled">
+              <span wire:loading.remove wire:target="rejectApplication"><i class="bi bi-send me-1"></i> Konfirmasi Tolak</span>
+              <span wire:loading wire:target="rejectApplication"><span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal View KTP -->
   <div class="modal fade" id="viewKtpModal" tabindex="-1" aria-labelledby="viewKtpModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -328,3 +440,17 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('livewire:initialized', () => {
+    Livewire.on('close-reject-modal', () => {
+      const modalEl = document.getElementById('rejectModal');
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) {
+          modal.hide();
+        }
+      }
+    });
+  });
+</script>

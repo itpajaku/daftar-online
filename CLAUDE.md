@@ -62,7 +62,7 @@ php artisan migrate:fresh --seed     # Reset and re-seed database
 
 2. **Admin Operations (Authenticated):**
    - **Dashboard (`/dashboard`):** Monthly registration stats chart using ApexCharts.
-   - **Identity Management (`/permohonan-akun`, `/identity/{hash_id}`):** List, review, download KTP documents, and delete applicant records.
+   - **Identity Management (`/permohonan-akun`, `/identity/{hash_id}`):** List, review, download KTP documents, reject applications with reason, and delete applicant records.
    - **E-Court Account Assignment (`FormECourtAccount`):** Admin enters created E-Court username/password into `ecourt_accounts`.
    - **Webhooks & Logs (`/web-hooks`, `/webhook-logs`):** Configure dynamic webhook destinations for applicant lifecycle events and inspect execution history.
    - **Court Settings (`/settings/admin_ecourt`):** Configure Satker name and admin WhatsApp contact.
@@ -76,7 +76,7 @@ php artisan migrate:fresh --seed     # Reset and re-seed database
 - **Obfuscated Route Identifiers:** Public URLs do not expose sequential database IDs. `vinkla/hashids` encodes and decodes integer IDs. `AppServiceProvider` binds `{hash_id}` route parameters to `App\Service\HashRouteId`. Models use the `UseHashedId` trait.
 
 ### Event & Webhook Architecture
-- **Events:** Key domain actions dispatch events (`IdentityCreateEvent`, `IdentityUpdateEvent`, `IdentityDeleteEvent`, `ECourtAccountCreatedEvent`, `EcourtAccountUpdateEvent`, `EcourtAccountDeleteEvent`).
+- **Events:** Key domain actions dispatch events (`IdentityCreateEvent`, `IdentityUpdateEvent`, `IdentityDeleteEvent`, `IdentityRejectedEvent`, `ECourtAccountCreatedEvent`, `EcourtAccountUpdateEvent`, `EcourtAccountDeleteEvent`).
 - **Webhook Dispatchers:** `WebHookListener` and `IdentityWebHookListener` intercept these events, find active entries in `web_hooks`, replace template variables (e.g., `{NO_WA_USER}`, `{USER_ECOURT}`, `{PASS_ECOURT}`), send HTTP GET/POST requests with optional custom headers/auth tokens, and record results in `web_hook_logs`.
 - **WhatsApp Integration:** `ECourtAccountCreatedListener` triggers `WhatsappClient` (configured via `WA_API_BASE_URL` in `config/services.php`) to send automated notifications to applicants when their E-Court accounts are provisioned.
 

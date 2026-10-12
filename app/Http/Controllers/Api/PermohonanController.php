@@ -43,7 +43,7 @@ class PermohonanController extends Controller
             if ($exists) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar'
+                    'message' => 'Nomor Kependudukan Atau Nomor Telepon Sudah Terdaftar',
                 ], 422);
             }
 
@@ -65,16 +65,17 @@ class PermohonanController extends Controller
                 'status' => 'success',
                 'message' => 'Data identitas berhasil disimpan.',
                 'data' => [
-                    'identity_id' => $hashId->encode($identity->id)
-                ]
+                    'identity_id' => $hashId->encode($identity->id),
+                ],
             ], 201);
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat menyimpan data.',
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -82,18 +83,18 @@ class PermohonanController extends Controller
     public function step2(Request $request, $identity_id, HashId $hashId)
     {
         $decoded_id = $hashId->decodeFirst($identity_id);
-        if (!$decoded_id) {
+        if (! $decoded_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'ID Identitas tidak valid.'
+                'message' => 'ID Identitas tidak valid.',
             ], 404);
         }
 
         $identity = Identity::find($decoded_id);
-        if (!$identity) {
+        if (! $identity) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Identitas tidak ditemukan.'
+                'message' => 'Identitas tidak ditemukan.',
             ], 404);
         }
 
@@ -108,8 +109,8 @@ class PermohonanController extends Controller
             DB::beginTransaction();
 
             $file_ktp = $request->file('file_ktp')->storeAs(
-                'ktp', 
-                'ktp-' . $identity_id . '.pdf', 
+                'ktp',
+                'ktp-'.$identity_id.'.pdf',
                 'public'
             );
 
@@ -133,16 +134,17 @@ class PermohonanController extends Controller
                 'status' => 'success',
                 'message' => 'Data rekening bank dan KTP berhasil disimpan.',
                 'data' => [
-                    'bank_account_id' => $hashId->encode($bank_account->id)
-                ]
+                    'bank_account_id' => $hashId->encode($bank_account->id),
+                ],
             ], 200);
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat menyimpan data rekening.',
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -150,18 +152,18 @@ class PermohonanController extends Controller
     public function status($identity_id, HashId $hashId)
     {
         $decoded_id = $hashId->decodeFirst($identity_id);
-        if (!$decoded_id) {
+        if (! $decoded_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'ID Identitas tidak valid.'
+                'message' => 'ID Identitas tidak valid.',
             ], 404);
         }
 
         $identity = Identity::with('ecourt_account')->find($decoded_id);
-        if (!$identity) {
+        if (! $identity) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Identitas tidak ditemukan.'
+                'message' => 'Identitas tidak ditemukan.',
             ], 404);
         }
 
@@ -172,32 +174,43 @@ class PermohonanController extends Controller
                 'data' => [
                     'username' => $identity->ecourt_account->username,
                     'password' => $identity->ecourt_account->password,
-                ]
+                ],
+            ]);
+        }
+
+        if ($identity->isRejected()) {
+            return response()->json([
+                'status' => 'rejected',
+                'message' => 'Permohonan ditolak oleh admin.',
+                'data' => [
+                    'alasan_penolakan' => $identity->alasan_penolakan,
+                    'rejected_at' => $identity->rejected_at ? $identity->rejected_at->toISOString() : null,
+                ],
             ]);
         }
 
         return response()->json([
             'status' => 'pending',
             'message' => 'Menunggu verifikasi admin.',
-            'data' => null
+            'data' => null,
         ]);
     }
 
     public function show($identity_id, HashId $hashId)
     {
         $decoded_id = $hashId->decodeFirst($identity_id);
-        if (!$decoded_id) {
+        if (! $decoded_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'ID Identitas tidak valid.'
+                'message' => 'ID Identitas tidak valid.',
             ], 404);
         }
 
         $identity = Identity::with('bank_account')->find($decoded_id);
-        if (!$identity) {
+        if (! $identity) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Identitas tidak ditemukan.'
+                'message' => 'Identitas tidak ditemukan.',
             ], 404);
         }
 
@@ -223,9 +236,9 @@ class PermohonanController extends Controller
                     'nama_bank' => $identity->bank_account->nama_bank,
                     'nomor_rekening' => $identity->bank_account->nomor_rekening,
                     'nama_akun' => $identity->bank_account->nama_akun,
-                    'file_ktp_url' => $identity->bank_account->file_ktp ? asset('storage/' . $identity->bank_account->file_ktp) : null,
-                ] : null
-            ]
+                    'file_ktp_url' => $identity->bank_account->file_ktp ? asset('storage/'.$identity->bank_account->file_ktp) : null,
+                ] : null,
+            ],
         ]);
     }
 }
