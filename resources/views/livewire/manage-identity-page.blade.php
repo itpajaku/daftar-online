@@ -66,8 +66,10 @@
                       <td>{{ $i->pekerjaan }}</td>
                       <td>{{ $i->pendidikan }}</td>
                       <td>
-                        @if ($i->ecourt_account)
+                        @if ($i->isVerified())
                           <span class="badge bg-success">Sudah Verifikasi</span>
+                        @elseif ($i->isRejected())
+                          <span class="badge bg-danger" title="{{ $i->alasan_penolakan }}">Ditolak</span>
                         @else
                           <span class="badge bg-warning text-dark">Belum Verifikasi</span>
                         @endif

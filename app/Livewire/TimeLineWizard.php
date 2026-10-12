@@ -2,66 +2,71 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-
-use App\Library\HashId;
 use App\Models\Identity;
 use App\Service\HashRouteId;
-use Illuminate\Support\Facades\Vite;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Spatie\Html\Elements\A;
 use Spatie\Html\Elements\Element;
 use Spatie\Html\Elements\Span;
-use Spatie\Html\Elements\A;
-use Spatie\Html\Elements\Button;
 
 #[Layout('components.layouts.wizard')]
 class TimeLineWizard extends Component
 {
     public Identity $identity;
+
     public mixed $hash_id;
 
     public function mount(HashRouteId $hash_id)
     {
         $this->hash_id = $hash_id->getDecodedId();
-        if (!$this->hash_id) {
+        if (! $this->hash_id) {
             return redirect('/search')->with('error', 'Akun tidak ditemukan');
         }
         $this->identity = Identity::find($hash_id->getDecodedId());
-        if (!$this->identity) {
+        if (! $this->identity) {
             session()->flash('error', 'Akun tidak ditemukan.');
+
             return redirect()->route('search');
         }
-        if (!$this->identity->bank_account) {
+        if (! $this->identity->bank_account) {
             session()->flash('error', 'Silahkan lanjutkan proses pengisian data anda.');
-            return redirect()->route('step-2', ['hash_id' =>  $hash_id->getOriginalId()]);
+
+            return redirect()->route('step-2', ['hash_id' => $hash_id->getOriginalId()]);
         }
     }
 
     public function render()
     {
         $nowDate = now()->translatedFormat('l j F Y');
+
         return Element::withTag('section')->class('py-1 py-md-1')->children([
             Element::withTag('div')->class('container')->children([
                 Element::withTag('div')->class('card widget-card bsb-timeline-8 border-light shadow-sm')->children([
                     Element::withTag('div')->class('card-body')->children([
                         Element::withTag('h5')->text('Progress Pendaftaran Anda')->class('card-title widget-card-title mb-3'),
+                        session('success') ? Element::withTag('div')->class('alert alert-success alert-dismissible fade show mb-3')->children([
+                            Element::withTag('i')->class('bi bi-check-circle-fill me-2'),
+                            Span::create()->text(session('success')),
+                            Element::withTag('button')->class('btn-close')->attribute('data-bs-dismiss', 'alert')->attribute('aria-label', 'Close'),
+                        ]) : null,
                         Element::withTag('ul')->class('timeline')->children([
                             Element::withTag('li')->class('timeline-item')->children([
                                 Element::withTag('div')->class('timeline-body')->children([
                                     Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text($this->identity->created_at->translatedFormat("l j F Y")),
+                                        Span::create()->text($this->identity->created_at->translatedFormat('l j F Y')),
                                     ]),
                                     Element::withTag('div')->class('timeline-content timeline-indicator')->children([
                                         Element::withTag('h6')->text('Pendaftaran Identitas Pengguna Lain.')->class('mb-1'),
-                                        Span::create()->text('Nama Lengkap: ' . $this->identity->nama_lengkap)->class('text-secondary fs-7'),
+                                        Span::create()->text('Nama Lengkap: '.$this->identity->nama_lengkap)->class('text-secondary fs-7'),
                                         Element::withTag('br'),
                                         A::create()
                                             ->attribute('wire:navigate')
-                                            ->href('/step-1/' . $this->hash_id)
+                                            ->href('/step-1/'.$this->hash_id)
                                             ->class('btn btn-sm btn-primary my-2')->children([
                                                 Element::withTag('i')->class('ti ti-pencil me-2'),
-                                                'Ubah Data'
-                                            ])
+                                                'Ubah Data',
+                                            ]),
                                     ]),
                                 ]),
                             ]),
@@ -69,19 +74,19 @@ class TimeLineWizard extends Component
                             Element::withTag('li')->class('timeline-item')->children([
                                 Element::withTag('div')->class('timeline-body')->children([
                                     Element::withTag('div')->class('timeline-meta')->children([
-                                        Span::create()->text($this->identity->created_at->translatedFormat("l j F Y")),
+                                        Span::create()->text($this->identity->created_at->translatedFormat('l j F Y')),
                                     ]),
                                     Element::withTag('div')->class('timeline-content timeline-indicator')->children([
                                         Element::withTag('h6')->text('Pengisian Akun dan Nomor Rekening.')->class('mb-1'),
-                                        Span::create()->text('Nama Bank: ' . $this->identity->bank_account->nama_bank)->class('text-secondary fs-7'),
+                                        Span::create()->text('Nama Bank: '.$this->identity->bank_account->nama_bank)->class('text-secondary fs-7'),
                                         Element::withTag('br'),
                                         A::create()
                                             ->attribute('wire:navigate')
-                                            ->href('/step-2/' . $this->hash_id)
+                                            ->href('/step-2/'.$this->hash_id)
                                             ->class('btn btn-sm btn-primary my-2')->children([
                                                 Element::withTag('i')->class('ti ti-pencil me-2'),
-                                                'Ubah Data'
-                                            ])
+                                                'Ubah Data',
+                                            ]),
                                     ]),
 
                                 ]),
@@ -94,7 +99,9 @@ class TimeLineWizard extends Component
                                     ]),
                                     $this->identity->ecourt_account
                                         ? $this->existedEcourtAccountCard()
-                                        : $this->notExistedEcourtAccountCard()
+                                        : ($this->identity->isRejected()
+                                            ? $this->rejectedEcourtAccountCard()
+                                            : $this->notExistedEcourtAccountCard()),
                                 ]),
                             ]),
 
@@ -142,12 +149,12 @@ class TimeLineWizard extends Component
 
     public function existedEcourtAccountCard()
     {
-        return  Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+        return Element::withTag('div')->class('timeline-content timeline-indicator')->children([
             Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
             Span::create()->text('Status: Sudah Terbit')->class('text-secondary fs-7'),
             Element::withTag('div')->attribute('role', 'alert')->class('alert alert-success mt-2')->children([
                 Element::withTag('i')->class('bi bi-check-circle-fill me-1'),
-                Span::create()->text("Pendaftaran berhasil"),
+                Span::create()->text('Pendaftaran berhasil'),
                 Element::withTag('br'),
                 Span::create()->text("User : {$this->identity->ecourt_account->username}. Password: {$this->identity->ecourt_account->password}"),
                 Element::withTag('br'),
@@ -155,9 +162,26 @@ class TimeLineWizard extends Component
         ]);
     }
 
+    public function rejectedEcourtAccountCard()
+    {
+        return Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+            Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
+            Span::create()->text('Status: Permohonan Ditolak')->class('text-danger fs-7 fw-bold'),
+            Element::withTag('div')->attribute('role', 'alert')->class('alert alert-danger mt-2')->children([
+                Element::withTag('div')->class('d-flex align-items-center mb-1')->children([
+                    Element::withTag('i')->class('bi bi-x-circle-fill me-2 fs-5 text-danger'),
+                    Element::withTag('strong')->text('Permohonan Belum Dapat Disetujui'),
+                ]),
+                Element::withTag('p')->class('mb-1 small fw-semibold text-dark')->text('Alasan Penolakan:'),
+                Element::withTag('div')->class('p-2 bg-white rounded border border-danger-subtle text-dark mb-2')->text($this->identity->alasan_penolakan ?: 'Data atau berkas belum memenuhi persyaratan.'),
+                Element::withTag('p')->class('mb-0 small text-muted')->text('Silakan periksa dan perbaiki data Anda menggunakan tombol "Ubah Data" pada langkah di atas. Setelah data disimpan, permohonan akan otomatis ditinjau kembali oleh admin.'),
+            ]),
+        ]);
+    }
+
     public function notExistedEcourtAccountCard()
     {
-        return  Element::withTag('div')->class('timeline-content timeline-indicator')->children([
+        return Element::withTag('div')->class('timeline-content timeline-indicator')->children([
             Element::withTag('h6')->text('Proses Pendaftaran Ecourt oleh Admin.')->class('mb-1'),
             Span::create()->text('Status: Belum Terbit')->class('text-danger fs-7'),
             Element::withTag('div')->attribute('role', 'alert')->class('alert alert-warning mt-2')->children([

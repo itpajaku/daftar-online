@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use App\Service\HashId;
 use App\Traits\UseHashedId;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Crypt;
 
-
 class Identity extends Model
 {
-    use UseHashedId;
     use SoftDeletes;
+    use UseHashedId;
 
     protected $guarded = [];
 
@@ -27,14 +25,30 @@ class Identity extends Model
     public function casts(): array
     {
         return [
-            'tanggal_lahir' => 'datetime:Y-m-d'
+            'tanggal_lahir' => 'datetime:Y-m-d',
+            'rejected_at' => 'datetime',
         ];
+    }
+
+    public function isPending(): bool
+    {
+        return ($this->status ?? 'pending') === 'pending' && ! $this->ecourt_account;
+    }
+
+    public function isVerified(): bool
+    {
+        return ($this->status ?? '') === 'verified' || (bool) $this->ecourt_account;
+    }
+
+    public function isRejected(): bool
+    {
+        return ($this->status ?? '') === 'rejected';
     }
 
     protected function nomor_kependudukan()
     {
         return Attribute::make(
-            get: fn(string $val) => Crypt::decryptString($val),
+            get: fn (string $val) => Crypt::decryptString($val),
         );
     }
 
