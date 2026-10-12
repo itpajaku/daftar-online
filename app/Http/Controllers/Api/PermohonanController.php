@@ -241,4 +241,117 @@ class PermohonanController extends Controller
             ],
         ]);
     }
+
+    public function search(Request $request, HashId $hashId, $nomor_telepon = null)
+    {
+        $phoneInput = $nomor_telepon
+            ?? $request->input('nomor_telepon')
+            ?? $request->query('nomor_telepon')
+            ?? $request->input('phone')
+            ?? $request->query('phone')
+            ?? $request->input('no_hp')
+            ?? $request->query('no_hp');
+
+        if (! $phoneInput) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Nomor telepon tidak boleh kosong.',
+            ], 422);
+        }
+
+        $phoneStr = trim((string) $phoneInput);
+        $cleaned = preg_replace('/[^0-9]/', '', $phoneStr);
+
+        $candidates = array_filter(array_unique([
+            $phoneStr,
+            $cleaned,
+        ]));
+
+        if (str_starts_with($cleaned, '62')) {
+            $candidates[] = '0'.substr($cleaned, 2);
+            $candidates[] = substr($cleaned, 2);
+        } elseif (str_starts_with($cleaned, '0')) {
+            $candidates[] = '62'.substr($cleaned, 1);
+            $candidates[] = substr($cleaned, 1);
+        } elseif (str_starts_with($cleaned, '8')) {
+            $candidates[] = '0'.$cleaned;
+            $candidates[] = '62'.$cleaned;
+        }
+
+        $hashes = array_unique(array_map(function ($phone) {
+            return hash_hmac('sha256', $phone, config('app.key'));
+        }, array_filter($candidates)));
+
+        $sensitiveKey = SensitiveIdentityKey::whereIn('hash_nomor_telepon', $hashes)
+            ->whereHas('identity', function ($q) {
+                $q->whereNull('deleted_at');
+            })
+            ->with(['identity.bank_account', 'identity.ecourt_account'])
+            ->latest('id')
+            ->first();
+
+        if (! $sensitiveKey || ! $sensitiveKey->identity) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun dengan nomor telepon tersebut tidak ditemukan.',
+            ], 404);
+        }
+
+        $identity = $sensitiveKey->identity;
+        $hashedId = $hashId->encode($identity->id);
+
+        if (! $identity->bank_account) {
+            return response()->json([
+                'status' => 'incomplete',
+                'message' => 'Permohonan belum lengkap. Silakan lengkapi data rekening bank dan KTP (Step 2).',
+                'data' => [
+                    'identity_id' => $hashedId,
+                    'nama_lengkap' => $identity->nama_lengkap,
+                    'status' => 'incomplete',
+                    'step_2_url' => url('/step-2/'.$hashedId),
+                ],
+            ]);
+        }
+
+        if ($identity->ecourt_account) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Akun E-Court sudah dibuat oleh admin.',
+                'data' => [
+                    'identity_id' => $hashedId,
+                    'nama_lengkap' => $identity->nama_lengkap,
+                    'status' => 'verified',
+                    'username' => $identity->ecourt_account->username,
+                    'password' => $identity->ecourt_account->password,
+                    'timeline_url' => url('/timeline/'.$hashedId),
+                ],
+            ]);
+        }
+
+        if ($identity->isRejected()) {
+            return response()->json([
+                'status' => 'rejected',
+                'message' => 'Permohonan ditolak oleh admin.',
+                'data' => [
+                    'identity_id' => $hashedId,
+                    'nama_lengkap' => $identity->nama_lengkap,
+                    'status' => 'rejected',
+                    'alasan_penolakan' => $identity->alasan_penolakan,
+                    'rejected_at' => $identity->rejected_at ? $identity->rejected_at->toISOString() : null,
+                    'timeline_url' => url('/timeline/'.$hashedId),
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'pending',
+            'message' => 'Menunggu verifikasi admin.',
+            'data' => [
+                'identity_id' => $hashedId,
+                'nama_lengkap' => $identity->nama_lengkap,
+                'status' => 'pending',
+                'timeline_url' => url('/timeline/'.$hashedId),
+            ],
+        ]);
+    }
 }

@@ -124,6 +124,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
   
+  /permohonan/search:
+    get:
+      summary: Cari Permohonan Akun Berdasarkan Nomor Telepon (GET)
+      description: Memeriksa hasil dan status permohonan akun e-court menggunakan nomor telepon (nomor HP) pemohon melalui query string.
+      operationId: searchPermohonanGet
+      parameters:
+        - name: nomor_telepon
+          in: query
+          required: true
+          description: Nomor telepon/HP pemohon saat pendaftaran.
+          schema:
+            type: string
+            example: "081234567890"
+      responses:
+        '200':
+          description: Data permohonan berhasil ditemukan. Status dapat berupa 'success' (sudah terbit), 'pending' (menunggu verifikasi), 'rejected' (ditolak), atau 'incomplete' (belum melengkapi Step 2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '404':
+          description: Akun dengan nomor telepon tersebut tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Nomor telepon tidak boleh kosong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    post:
+      summary: Cari Permohonan Akun Berdasarkan Nomor Telepon (POST)
+      description: Memeriksa hasil dan status permohonan akun e-court menggunakan nomor telepon (nomor HP) pemohon melalui body request JSON.
+      operationId: searchPermohonanPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nomor_telepon
+              properties:
+                nomor_telepon:
+                  type: string
+                  example: "081234567890"
+      responses:
+        '200':
+          description: Data permohonan berhasil ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '404':
+          description: Akun dengan nomor telepon tersebut tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Nomor telepon tidak boleh kosong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /permohonan/search/{nomor_telepon}:
+    get:
+      summary: Cari Permohonan Akun Berdasarkan Path Parameter
+      description: Memeriksa hasil dan status permohonan akun e-court menggunakan nomor telepon langsung pada parameter URL.
+      operationId: searchPermohonanByParam
+      parameters:
+        - name: nomor_telepon
+          in: path
+          required: true
+          description: Nomor telepon/HP pemohon.
+          schema:
+            type: string
+            example: "081234567890"
+      responses:
+        '200':
+          description: Data permohonan berhasil ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '404':
+          description: Akun dengan nomor telepon tersebut tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
   /permohonan/identity/{identity_id}:
     get:
       summary: Detail Identitas
@@ -344,6 +439,48 @@ components:
                   type: string
                 file_ktp_url:
                   type: string
+
+    SearchResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+          enum: ["success", "pending", "rejected", "incomplete"]
+        message:
+          type: string
+          example: "Akun E-Court sudah dibuat oleh admin."
+        data:
+          type: object
+          properties:
+            identity_id:
+              type: string
+              example: "abc123xyz"
+            nama_lengkap:
+              type: string
+              example: "Budi Santoso"
+            status:
+              type: string
+              example: "verified"
+              enum: ["verified", "pending", "rejected", "incomplete"]
+            username:
+              type: string
+              example: "budi_ecourt"
+            password:
+              type: string
+              example: "password123"
+            alasan_penolakan:
+              type: string
+              example: "Foto KTP buram dan tidak terbaca."
+            rejected_at:
+              type: string
+              format: date-time
+            timeline_url:
+              type: string
+              example: "http://localhost:8000/timeline/abc123xyz"
+            step_2_url:
+              type: string
+              example: "http://localhost:8000/step-2/abc123xyz"
 
     ValidationError:
       type: object
