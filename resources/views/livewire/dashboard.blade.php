@@ -372,7 +372,9 @@
   </div>
 
   <!-- ApexCharts Script -->
+  @assets
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  @endassets
 
   @script
   <script>
@@ -484,14 +486,16 @@
       const eventData = Array.isArray(event) ? event[0] : event;
       const newData = eventData.data || eventData;
 
-      areaChart.updateSeries([{
-        data: newData.series
-      }]);
-      areaChart.updateOptions({
-        xaxis: {
-          categories: newData.labels
-        }
-      });
+      if (areaChart && newData) {
+        areaChart.updateSeries([{
+          data: newData.series
+        }]);
+        areaChart.updateOptions({
+          xaxis: {
+            categories: newData.labels
+          }
+        });
+      }
     });
   </script>
   @endscript

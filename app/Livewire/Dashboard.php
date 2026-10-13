@@ -143,6 +143,11 @@ class Dashboard extends Component
         ];
     }
 
+    public function toJSON()
+    {
+        return [];
+    }
+
     public function render(HashId $hashId)
     {
         return view('livewire.dashboard', [

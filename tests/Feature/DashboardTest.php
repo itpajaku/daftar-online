@@ -82,4 +82,17 @@ class DashboardTest extends TestCase
             ->assertSee('Menunggu Verifikasi')
             ->assertSee('Permohonan Ditolak');
     }
+
+    public function test_dashboard_handles_to_json_method_call_safely(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(Dashboard::class)
+            ->call('toJSON')
+            ->assertSuccessful();
+
+        Livewire::actingAs($this->user)
+            ->test(\App\Livewire\IdentityTotalCard::class)
+            ->call('toJSON')
+            ->assertSuccessful();
+    }
 }
